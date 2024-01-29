@@ -1,0 +1,199 @@
+{{> header}}
+
+<hr />
+<div>
+    Total Productos: <b>{{totalDocs}}</b>
+    <br />
+    <hr>
+    <div class="paginate">
+        <p class="txtPaginate">Buscar Producto: </p>
+        <input type="text" id="query" value="{{query}}" class="inpSearch" />
+        <button class="btn btn-outline-primary" id="btnSearchTitle">Search</button>
+    </div>
+
+    <hr>
+    <br>
+
+    <h4>Filtros</h4>
+
+    {{!-- todo --}}
+
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    Filtros de Busqueda
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+
+                    Limit: <input id="limit" type="text" value="{{limit}}"><br>
+
+                    Page: <input id="page" type="text" value="{{page}}"><br>
+
+                    Disponibilidad: <select name="" id="status">
+                        <option value="true">Disponible</option>
+                        <option value="false">Sin Disponibilidad</option>
+                    </select>
+
+                    Category: <select name="" id="category">
+                        <option value=""></option>
+                        {{#each payload}}
+                        <option value="{{category}}">{{category}}</option>
+                        {{/each}}
+                    </select>
+                    <br>
+                    Ordenar Precio: <select name="" id="sort">
+                        <option value="asc">Ascendente</option>
+                        <option value="desc">Descendente</option>
+                    </select>
+
+                    <div class="paginateFilter">
+                        <button class="btn btn-outline-primary" id="btnSearch">Search</button>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<hr>
+<div class="productCard">
+
+    {{#each payload}}
+
+    <div class="card" style="width: 300px;">
+        {{#if this.thumbnail}}
+        <img src="{{this.thumbnail}}" class="card-img-top" alt="{{this.title}}" width="75" height="250" />
+        {{else}}
+        Sin Imágen
+        {{/if}}
+        <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <p class="card-text">{{this.description}}</p>
+            <p class="card-text">Precio: $ <b>{{this.price}}</b></p>
+            <p class="card-text">Stock: <b>{{this.stock}}</b></p>
+            <p class="card-text">Status:
+                {{#if this.status}}
+                <b>Activo</b>
+                {{else}}
+                <b>Desactivado</b>
+                {{/if}}
+            </p>
+        </div>
+        <div class="card-body btnComprar">
+            <button class="btn btn-outline-info" id="btnAdToCart" onclick="addToCart('{{this._id}}')">Add Cart</button>
+        </div>
+    </div>
+
+    {{/each}}
+
+</div>
+<br>
+<hr>
+<input id="prevPage" type="hidden" value="{{prevPage}}" />
+<input id="nextPage" type="hidden" value="{{nextPage}}" />
+<div class="paginate">
+    <a class="btnPaginate" id="btnPrev" href="#" {{#unless hasPrevPage}} style="display: none;" {{/unless}}>Prev</a>
+    <p class="txtPaginate">Pages: <b>{{page}}</b> / {{totalPages}}</p> <br />
+    <a class="btnPaginate" id="btnNext" {{#unless hasNextPage}} style="display: none;" {{/unless}} href="#">Next</a>
+</div>
+<hr>
+<br>
+
+<script>
+
+    document.querySelector('#btnPrev').onclick = () => {
+        const prevPage = document.querySelector('#prevPage').value
+        const limit = document.querySelector('#limit').value
+        const query = document.querySelector('#query').value
+        const sort = document.querySelector('#sort').value
+
+        const status = document.querySelector('#status').value
+        const category = document.querySelector('#category').value
+
+        const url = `/products?page=${prevPage}&limit=${limit}&query=${query}&sort=${sort}&status=${status}&category=${category}`
+        document.location.href = url
+    }
+
+    document.querySelector('#btnNext').onclick = () => {
+        const nextPage = document.querySelector('#nextPage').value
+        const limit = document.querySelector('#limit').value
+        const query = document.querySelector('#query').value
+        const sort = document.querySelector('#sort').value
+
+        const status = document.querySelector('#status').value
+        const category = document.querySelector('#category').value
+
+        const url = `/products?page=${nextPage}&limit=${limit}&query=${query}&sort=${sort}&status=${status}&category=${category}`
+        document.location.href = url
+    }
+
+    document.querySelector('#btnSearch').onclick = () => {
+        const limit = document.querySelector('#limit').value
+        const page = document.querySelector('#page').value
+        const query = document.querySelector('#query').value
+        const sort = document.querySelector('#sort').value
+
+        const status = document.querySelector('#status').value
+        const category = document.querySelector('#category').value
+
+        const url = `/products?page=${page}&limit=${limit}&query=${query}&sort=${sort}&status=${status}&category=${category}`
+        document.location.href = url
+    }
+
+    document.querySelector('#btnSearchTitle').onclick = () => {
+        const limit = document.querySelector('#limit').value
+        const page = 1
+        const query = document.querySelector('#query').value
+        const sort = document.querySelector('#sort').value
+        const url = `/products?page=${page}&limit=${limit}&query=${query}&sort=${sort}`
+        document.location.href = url
+    }
+
+    let searchTitle = document.getElementById('query');
+
+    searchTitle.addEventListener('keyup', evt => {
+        if (evt.key === 'Enter') {
+            if (searchTitle.value.length > 0) {
+                const limit = document.querySelector('#limit').value
+                const page = 1
+                const query = document.querySelector('#query').value
+                const sort = document.querySelector('#sort').value
+                const url = `/products?page=${page}&limit=${limit}&query=${query}&sort=${sort}`
+                document.location.href = url
+                chatBox.value = '';
+            }
+        }
+    });
+
+
+    function addToCart(pid) {
+        const idCart = '65b6fcf5593c4f9a67eae703'
+        fetch(`/api/carts/${idCart}/products/${pid}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(resp => resp.json())
+            .then(data => {
+                console.log(data)
+            })
+            .catch(error => {
+                console.log('Error: ' + error)
+            })
+
+        Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Producto cargado al Carrito",
+            showConfirmButton: false,
+            timer: 1500
+        });
+    } 
+</script>

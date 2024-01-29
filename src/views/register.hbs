@@ -1,0 +1,25 @@
+
+<div id="contenedor">
+    <div id="central">
+        <div id="login">
+            <div class="titulo">
+                Bienvenido
+            </div>
+            <form id="loginform" action="/api/session/register" method="POST">
+
+                <input type="text" name="firstName" id="firstName" placeholder="Nombre" required>
+                <input type="text" name="lastName" id="lastName" placeholder="Apellido" required>
+                <input type="number" name="age" id="age" placeholder="Edad" required>
+                <input type="email" name="email" id="email" placeholder="Email" required>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+
+                <button type="submit" title="Ingresar" name="Ingresar">Register</button>
+            </form>
+            <div class="pie-form">
+                {{!-- <a href="#">¿Perdiste tu contraseña?</a> --}}
+                <a href="/login">¿Ya tienes cuenta? <b>Login</b></a>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,4 +1,4 @@
-//Todo:        Conección a Mongoose
+//?        Conección a Mongoose
 
 import mongoose from 'mongoose'
 import config from './config.js'

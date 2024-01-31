@@ -1,25 +1,17 @@
 // Dependencies Imports
 import express from 'express'
-import { engine } from 'express-handlebars'
 import { Server } from 'socket.io'
 import __dirname from './utils.js'
-import session from 'express-session'
-import MongoStore from 'connect-mongo'
-import passport from 'passport'
 //Variables de entorno
 import config from './config/config.js'
-
+//Routers
 import ProductsRouter from './routers/products.js'
 import CartRouter from './routers/cart.js'
-import ViewsRouter from './routers/views.js'
-import SessionRouter from './routers/session.router.js'
+import LoginRouter from './routers/login.js'
 
 import { dbConnection } from './config/mongo.config.js'
 import chatModel from './dao/mongo/models/chat.model.js'
-
 import { ProductRepository } from './repositories/index.repository.js'
-
-import initializePassport from './config/passport.config.js'
 
 
 
@@ -37,33 +29,12 @@ app.use(express.urlencoded({ extended: true }))
 //Conección a BD MongoDB
 await dbConnection()
 
-// Session
-app.use(session({
-    store: MongoStore.create({
-        mongoUrl: config.urlMongoDb,
-        dbName: config.dbName
-    }),
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-}))
-
-// views handlebars
-app.engine('hbs', engine({ extname: '.hbs' }))
-app.set('view engine', 'hbs')
-app.set('views', __dirname + '/views')
-
-// Passport
-initializePassport()
-app.use(passport.initialize())
-app.use(passport.session())
 
 // Router 
 
+app.use('/api/login', LoginRouter)
 app.use('/api/products', ProductsRouter)
 app.use('/api/carts', CartRouter)
-app.use('/api/session', SessionRouter)
-app.use('/', ViewsRouter)
 
 // Express Server
 const httpServer = app.listen(config.port, () => console.log('listening on port 8080 ...'))

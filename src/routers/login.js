@@ -2,8 +2,8 @@ import { Router } from "express"
 import { addUser, loginUser } from "../controller/login.controller.js"
 
 import { check } from "express-validator"
-import { loginValidate } from "../middleware/login.middleware.js"
 import { emailExist } from "../helpers/DbValidation.js"
+import { fieldValidate } from "../middleware/validate.middleware.js"
 
 
 const router =  Router()
@@ -19,14 +19,14 @@ router.post('/register',[
     check('password', 'El campo "Password" es obligatorio').not().isEmpty(),
     check('password', 'Password requiere 8 o mas caracteres').isLength({min: 8}),
     check('password', 'Password debe contener letras y números').isAlphanumeric(),
-    loginValidate
+    fieldValidate
 ], addUser)
 
 router.post('/login',[
     check('email', 'El campo email es obligatorio').not().isEmpty(),
     check('email', 'Se requiere un email válido').isEmail(),
     check('password', 'Password es un campo abligatorio').not().isEmpty(),
-    loginValidate
+    fieldValidate
 ], loginUser)
 
 export default router

@@ -8,8 +8,8 @@ export const getCartById = async (cid) => {
     return await CartDao.getCartById(cid)
 }
 
-export const addCarts = async () => {
-    return await CartDao.addCarts()
+export const addCart = async () => {
+    return await CartDao.addCart()
 }
 
 export const addProductToCart = async (cid, pid) => {
@@ -26,4 +26,8 @@ export const deleteProductInCart = async (cid, pid) => {
 
 export const deleteCart = async (cid) => {
     return await CartDao.deleteCart(cid)
+}
+
+export const deleteAllProductsInCart = async (cid) => {
+    return await CartDao.deleteAllProductsInCart(cid)
 }

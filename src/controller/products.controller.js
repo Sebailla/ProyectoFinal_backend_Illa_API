@@ -30,14 +30,8 @@ export const getProductById = async (req = request, res = response) => {
 
 export const addProduct = async (req = request, res = response) => {
     try {
-        const { title, description, price, thumbnail, code, stock, category, status } = req.body
-        if (!title, !description, !price, !code, !stock, !category) {
-            return res.status(404).json({ msg: 'Faltan Campos Obligatorios' })
-        }
-        const verifiedCode = await ProductRepository.getProductByCode(code)
-        if (verifiedCode) {
-            return res.status(400).json({ msg: 'El Código ya existe' })
-        }
+        const { title, description, price, code, stock, category} = req.body
+
         if (req.file) {
             const isValidExtension = validFileExtension(req.file.originalname)
             if (!isValidExtension) {
@@ -47,9 +41,10 @@ export const addProduct = async (req = request, res = response) => {
             req.body.thumbnail = secure_url
         }
 
-        await ProductRepository.addProduct({ ...req.body })
+        const result = await ProductRepository.addProduct({ ...req.body })
 
-        return res.redirect('/products')
+        return res.json({msg: 'Producto agregado corectamente', result})
+        //return res.redirect('/products')
 
     } catch (error) {
         return res.status(500).json({ msg: 'Error en servidor' })

@@ -1,25 +1,13 @@
 import TicketModel from './models/ticket.model.js'
 
-export default class Ticket {
-    constructor() { }
+export const getTicketById = async (id) => {
+    return await TicketModel.findById(id)
+}
 
-    getTicket = async () => {
-        return TicketModel.find()
-    }
+export const getTicketByEmail = async (email) => {
+    return await TicketModel.findOne({ purchaser: email })
+}
 
-    getTicketById = async (id) => {
-        return TicketModel.findById(id)
-    }
-
-    addTicket = async (ticket) => {
-        return TicketModel.create(ticket)
-    }
-
-    updateTicket = async (id, ticket) => {
-        return TicketModel.updateOne({_id: id}, {$set: ticket})
-    }
-
-    deleteTicket = async (id) =>{
-        return TicketModel.deleteOne({_id: id})
-    }
+export const addTicket = async (ticket) => {
+    return await TicketModel.create({ ...ticket })
 }

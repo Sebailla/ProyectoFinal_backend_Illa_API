@@ -1,14 +1,14 @@
 import CartsModel from './models/carts.model.js'
 
 export const getCarts = async () => {
-        return await CartsModel.find()
+        return await CartsModel.find().populate('products').lean()
 }
 
 export const getCartById = async (cid) => {
-        return await CartsModel.findById(cid).populate('products.id').lean()
+        return await CartsModel.findById(cid).populate('products.id', ['title', 'price', 'stock']).lean()
 }
 
-export const addCarts = async () => {
+export const addCart = async () => {
         return await CartsModel.create({})
 }
 
@@ -43,4 +43,8 @@ export const deleteProductInCart = async (cid, pid) => {
 
 export const deleteCart = async (cid) => {
         return await CartsModel.findByIdAndDelete(cid)
+}
+
+export const deleteAllProductsInCart = async (cid) => {
+        return await CartsModel.findByIdAndUpdate(cid, { $set: { 'products': [] } }, { new: true })
 }

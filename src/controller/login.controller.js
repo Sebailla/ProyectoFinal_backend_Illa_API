@@ -2,6 +2,7 @@ import { request, response } from 'express'
 import { CartRepository, UserRepository } from '../repositories/index.repository.js'
 import { createHash, isValidPassword } from '../utils.js'
 import { generateToken } from '../config/jwt.js'
+import { logger } from '../utils/logger.js'
 
 export const addUser = async (req = request, res = response) => {
     try {
@@ -12,6 +13,7 @@ export const addUser = async (req = request, res = response) => {
         const cart = await CartRepository.addCart()
 
         if (!cart) {
+            logger.warning(`Cart not found - ${new Date().toLocaleString()}`)
             return res.status(500).json({ msg: 'Cart not found' })
         } else {
             req.body.cart_id = cart
@@ -24,8 +26,10 @@ export const addUser = async (req = request, res = response) => {
 
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
+        logger.info(`New User: ${firstName} ${lastName}, added success - ${new Date().toLocaleString()}`)
         return res.json({ msg: `New User: ${firstName} ${lastName}, added success`, token })
     } catch (error) {
+        logger.error(`Error en addUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -37,21 +41,25 @@ export const loginUser = async (req = request, res = response) => {
         const user = await UserRepository.getUserByEmail(email)
 
         if (!user) {
-            return res.status(400).json({ msg: 'User y/o Password son incorrectos' })
+            logger.warning(`Incorrect User or password - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'Incorrect User or password' })
         }
 
         const validPassword = isValidPassword(password, user.password)
 
         if (!validPassword) {
-            return res.status(400).json({ msg: 'User y/o Password son incorrectos' })
+            logger.warning(`Incorrect User or password - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'Incorrect User or password' })
         }
 
         const { _id, firstName, lastName, age, role, cart_id } = user
 
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
+        logger.info(`IUser: ${user.firstName} ${user.lastName}, has been login success - ${new Date().toLocaleString()}`)
         return res.json({ msg: `User: ${user.firstName} ${user.lastName}, has been login success`, token, user })
     } catch (error) {
+        logger.error(`Error en loginUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }

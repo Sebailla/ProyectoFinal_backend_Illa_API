@@ -3,29 +3,20 @@ import { request, response } from "express"
 import { CartRepository, ProductRepository, TicketRepository, UserRepository } from "../repositories/index.repository.js"
 
 import { v4 as uuidv4 } from 'uuid'
-import cartsModel from "../dao/mongo/models/carts.model.js"
+
+import { logger } from "../utils/logger.js"
 
 export const getCarts = async (req = request, res = response) => {
     try {
         const result = await CartRepository.getCarts()
         return res.json({ result })
     } catch (error) {
+        logger.error(`Error en getCarts-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
 
 export const getCartById = async (req = request, res = response) => {
-    /* try {
-        const { cid } = req.params
-        const result = await CartRepository.getCartById(cid)
-        if (!result) {
-            return res.status(404).json({ msg: `El pedido con ID: ${cid}, no existe` })
-        } else {
-            return res.json({ result })
-        }
-    } catch (error) {
-        return res.status(500).json({ msg: 'Error en servidor' })
-    } */
     try {
         const { _id } = req
         const { cid } = req.params
@@ -33,10 +24,12 @@ export const getCartById = async (req = request, res = response) => {
         const user = await UserRepository.getUserById(_id)
 
         if (!user) {
+            logger.warning(`User not found or unauthorized user - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'User not found or unauthorized user' })
         }
 
         if (!(user.cart_id.toString() === cid)) {
+            logger.warning(`Cart not found or unauthorized access - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Cart not found or unauthorized access ' })
         }
 
@@ -45,6 +38,7 @@ export const getCartById = async (req = request, res = response) => {
         return res.json({ result })
 
     } catch (error) {
+        logger.error(`Error en getCartById-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -54,21 +48,12 @@ export const addCart = async (req = request, res = response) => {
         const result = await CartRepository.addCart()
         return res.json({ msg: 'Pedido creado correctamente', result })
     } catch (error) {
+        logger.error(`Error en addCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
 
 export const addProductToCart = async (req = request, res = response) => {
-    /* try {
-        const { cid, pid } = req.params
-        const result = await CartRepository.addProductToCart(cid, pid)
-        if(!result){
-            return res.status(400).json({ msg: `El pedido con ID: ${cid}, no existe`})
-        }
-        return res.json({ msg: `El pedido con ID: ${cid}, actualizado corectamente`, result })
-    } catch (error) {
-        return res.status(500).json({ msg: 'Error en servidor' })
-    } */
     try {
         const { _id } = req
         const { cid, pid } = req.params
@@ -76,26 +61,32 @@ export const addProductToCart = async (req = request, res = response) => {
         const product = await ProductRepository.getProductById(pid)
 
         if (!user) {
+            logger.warning(`User not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'User not found' })
         }
 
         if (!(user.cart_id.toString() === cid)) {
+            logger.warning(`Cart not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Cart not found' })
         }
 
         if (!product) {
+            logger.warning(`Product not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Product not found' })
         }
 
         const result = await CartRepository.addProductToCart(cid, pid)
 
         if (!result) {
+            logger.warning(`El pedido con ID: ${cid}, no existe - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msg: `El pedido con ID: ${cid}, no existe` })
         }
 
+        logger.info(`El pedido con ID: ${cid}, actualizado corectamente - ${new Date().toLocaleString()}`)
         return res.json({ msg: `El pedido con ID: ${cid}, actualizado corectamente`, result })
 
     } catch (error) {
+        logger.error(`Error en addProductToCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -104,15 +95,22 @@ export const updateProductInCart = async (req = request, res = response) => {
     try {
         const { cid, pid } = req.params
         const { quantity } = req.body
-        if (!quantity || !Number.isInteger(quantity))
+        if (!quantity || !Number.isInteger(quantity)){
+            logger.warning(`La cantidad debe ser un número - ${new Date().toLocaleString()}`)
             return res.status(404).json({ msg: 'La cantidad debe ser un número' })
+        }
+            
         const cart = await CartRepository.updateProductInCart(cid, pid, quantity)
+
         if (!cart) {
+            logger.warning(`El pedido con Id: ${cid}, no se pudo actualizar - ${new Date().toLocaleString()}`)
             return res.status(404).json({ msg: `El pedido con Id: ${cid}, no se pudo actualizar` })
         } else {
+            logger.info(`Pedido Actializado correctamente - ${new Date().toLocaleString()}`)
             return res.json({ msg: 'Pedido Actializado correctamente', cart })
         }
     } catch (error) {
+        logger.error(`Error en updateProductInCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -125,25 +123,31 @@ export const deleteProductInCart = async (req = request, res = response) => {
         const product = await ProductRepository.getProductById(pid)
 
         if (!user) {
+            logger.warning(`User not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'User not found' })
         }
 
         if (!(user.cart_id.toString() === cid)) {
+            logger.warning(`Cart not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Cart not found' })
         }
 
         if (!product) {
+            logger.warning(`Product not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Product not found' })
         }
 
         const result = await CartRepository.deleteProductInCart(cid, pid)
 
         if (!result) {
+            logger.warning(`Error al eliminar producto del pedido - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msg: 'Error al eliminar producto del pedido' })
         } else {
+            logger.info(`Producto eliminado - ${new Date().toLocaleString()}`)
             return res.json({ msg: 'Producto eliminado', result })
         }
     } catch (error) {
+        logger.error(`Error en deleteProductInCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -153,11 +157,14 @@ export const deleteCart = async (req = request, res = response) => {
         const { cid } = req.params
         const result = await CartRepository.deleteCart(cid)
         if (result) {
+            logger.info(`Pedido eliminado correctamente - ${new Date().toLocaleString()}`)
             return res.json({ msg: 'Pedido eliminado correctamente', result })
         } else {
+            logger.warning(`El pedido con Id: ${pid}, no se pudo eliminar - ${new Date().toLocaleString()}`)
             return res.status(404).json({ msg: `El pedido con Id: ${pid}, no se pudo eliminar` })
         }
     } catch (error) {
+        logger.error(`Error en deleteCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -172,6 +179,7 @@ export const purchase = async (req = request, res = response) => {
         const user = await UserRepository.getUserById(_id)
 
         if (!(user.cart_id.toString() === cid)) {
+            logger.warning(`Cart not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Cart not found' })
         }
 
@@ -179,6 +187,7 @@ export const purchase = async (req = request, res = response) => {
 
         //Validar stock del producto
         if (!(cart.products.length > 0)) {
+            logger.info(`Cart empty - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'Cart empty', cart })
         }
         const stock = cart.products.filter(p => p.id.stock >= p.quantity)
@@ -217,11 +226,11 @@ export const purchase = async (req = request, res = response) => {
                 await CartRepository.deleteProductInCart(cartId, product.id._id)
             }
         }
-
+        logger.info(`Compra finalzada corectamente - Ticket: ${code} - ${new Date().toLocaleString()}`)
         return res.json({ msg: 'Compra finalzada corectamente', ticket: { code, items, amount, purchaser, purchase_datetime }})
 
     } catch (error) {
-        console.log(error)
+        logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Internal server error' })
     }
 }

@@ -2,12 +2,14 @@
 import express from 'express'
 import { Server } from 'socket.io'
 import __dirname from './utils.js'
+import { addLogger, logger } from './utils/logger.js'
 //Variables de entorno
 import config from './config/config.js'
 //Routers
 import ProductsRouter from './routers/products.js'
 import CartRouter from './routers/cart.js'
 import LoginRouter from './routers/login.js'
+import ViewsRouter from './routers/views.js'
 
 import { dbConnection } from './config/mongo.config.js'
 import chatModel from './dao/mongo/models/chat.model.js'
@@ -17,6 +19,7 @@ import { ProductRepository } from './repositories/index.repository.js'
 
 // Variables
 const app = express()
+app.use(addLogger)
 
 
 // Rutas urls
@@ -35,6 +38,7 @@ await dbConnection()
 app.use('/api/login', LoginRouter)
 app.use('/api/products', ProductsRouter)
 app.use('/api/carts', CartRouter)
+app.use('/', ViewsRouter)
 
 // Express Server
 const httpServer = app.listen(config.port, () => console.log('listening on port 8080 ...'))
@@ -46,10 +50,10 @@ const io = new Server(httpServer)
 //-------------------------------------------------
 io.on('connection', async (socket) => {
 
-    console.log('New Client connected on front')
+    logger.info(`New Client connected on front - ${new Date().toLocaleString()}`)
 
     socket.on('disconnect', () => {
-        console.log('Cliente sin conección')
+        logger.info(`Cliente sin conección - ${new Date().toLocaleString()}`)
     })
 
     //? Productos

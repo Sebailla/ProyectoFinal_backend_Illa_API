@@ -57,9 +57,29 @@ export const loginUser = async (req = request, res = response) => {
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
         logger.info(`IUser: ${user.firstName} ${user.lastName}, has been login success - ${new Date().toLocaleString()}`)
-        return res.json({ msg: `User: ${user.firstName} ${user.lastName}, has been login success`, token, user })
+
+        return res.json({ msg: 'Login is OK', User: `${user.firstName} ${user.lastName}, has been login success`, token, user })
     } catch (error) {
         logger.error(`Error en loginUser-controller - ${new Date().toLocaleString()}`)
+        return res.status(500).json({ msg: 'Error en servidor' })
+    }
+}
+
+export const revalidToken = async (req = request, res = response) => {
+    try {
+        const {_id, firstName, lastName, age, email, role, cart_id} = req
+
+        const user = await UserRepository.getUserByEmail(email)
+
+        const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
+
+        logger.info(`Revalidate Token OK - User: ${firstName} ${lastName} - ${new Date().toLocaleString()}`)
+
+        return res.json({ msg: 'revalidate token OK', user, Token: token})
+
+
+    } catch (error) {
+        logger.error(`Error en revalidToken-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }

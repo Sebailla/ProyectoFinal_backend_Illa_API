@@ -7,7 +7,6 @@ import { fieldValidate} from "../middleware/validate.middleware.js"
 import { codeExist } from '../helpers/DbValidation.js'
 import { addLogger } from '../utils/logger.js'
 
-
 const router = Router()
 
 router.get('/', [jwtValidity, addLogger], getProducts)

@@ -1,5 +1,7 @@
 import { Router } from "express"
-import { addLogger, logger } from "../utils/logger.js"
+import { addLogger} from "../utils/logger.js"
+import { jwtValidity } from "../middleware/auth.js"
+import { mokingProducts } from "../controller/moking.controller.js"
 
 const router = Router()
 
@@ -13,5 +15,7 @@ router.get('/loggerTest', addLogger, (req, res) => {
 
     res.send('LoggerTest')
 })
+
+router.get('/mokingProducts', jwtValidity, mokingProducts)
 
 export default router

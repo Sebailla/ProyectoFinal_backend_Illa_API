@@ -1,10 +1,11 @@
 import { Router } from "express"
-import { addUser, loginUser } from "../controller/login.controller.js"
+import { addUser, loginUser, revalidToken } from "../controller/login.controller.js"
 
 import { check } from "express-validator"
 import { emailExist } from "../helpers/DbValidation.js"
 import { fieldValidate } from "../middleware/validate.middleware.js"
 import { addLogger } from "../utils/logger.js"
+import { jwtValidity } from "../middleware/auth.js"
 
 const router =  Router()
 
@@ -30,5 +31,7 @@ router.post('/login',[
     check('password', 'Password es un campo abligatorio').not().isEmpty(),
     fieldValidate
 ], loginUser)
+
+router.get('/renew', jwtValidity, revalidToken)
 
 export default router

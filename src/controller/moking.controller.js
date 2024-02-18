@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker"
 export const mokingProducts = async (req = request, res = response) => {
     try {
         faker.location = 'es'
-        const products = Array.from({length: 100}, (_, index) => ({
+        const payload = Array.from({length: 100}, (_, index) => ({
             _id: faker.string.uuid(),
             title: faker.commerce.productName(),
             description: faker.lorem.sentence(),
@@ -15,7 +15,7 @@ export const mokingProducts = async (req = request, res = response) => {
             thumbnail: faker.image.url()
         }))
 
-        return res.json({products})
+        return res.json({payload})
     } catch (error) {
         logger.error(`Error en moking-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })

@@ -36,6 +36,11 @@ export const addProduct = async (req = request, res = response) => {
     try {
         const { title, description, price, code, stock, category } = req.body
 
+        if(!title || !description || !price || !code || !stock || !category){
+            logger.info(`Incompletes Dates in addProduct - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'Incompletes Dates' })
+        }
+
         if (req.file) {
             const isValidExtension = validFileExtension(req.file.originalname)
             if (!isValidExtension) {

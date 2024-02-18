@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { addUser, loginUser, revalidToken } from "../controller/login.controller.js"
+import { addUser, loginUser, passwordRecovery, passwordRecoveryTokenValidation, passwordReset, revalidToken } from "../controller/login.controller.js"
 
 import { check } from "express-validator"
 import { emailExist } from "../helpers/DbValidation.js"
@@ -33,5 +33,26 @@ router.post('/login',[
 ], loginUser)
 
 router.get('/renew', jwtValidity, revalidToken)
+
+router.post('/passwordRecovery', [
+    addLogger,
+    check('email', 'El campo "email" es obligatorio').not().isEmpty(),
+    check('email', 'Se requiere un email válido').isEmail(),
+    fieldValidate
+], passwordRecovery)
+
+router.get('/passwordReset',[
+    addLogger,
+    check('token', 'El token es obligatorio').not().isEmpty(),
+    fieldValidate
+], passwordRecoveryTokenValidation)
+
+router.post('/newPassword', [
+    addLogger,
+    check('token', 'El token es obligatorio').not().isEmpty(),
+    check('password', 'Password requiere 8 o mas caracteres').isLength({min: 8}),
+    check('password', 'Password debe contener letras y números').isAlphanumeric(),
+    fieldValidate
+], passwordReset)
 
 export default router

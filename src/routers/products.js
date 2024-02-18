@@ -9,15 +9,15 @@ import { addLogger } from '../utils/logger.js'
 
 const router = Router()
 
-router.get('/', [jwtValidity, addLogger], getProducts)
+router.get('/', addLogger, getProducts)
 
-router.get('/:pid', [jwtValidity, addLogger], getProductById)
+router.get('/:pid', addLogger, getProductById)
 
 router.post('/', [
     addLogger,
     jwtValidity,
     admin,
-    check('title', 'El campo "Título" es obligatorio').not().isEmpty(),
+    /* check('title', 'El campo "Título" es obligatorio').not().isEmpty(),
     check('description', 'El campo "Descripción" es obligatorio').not().isEmpty(),
     check('code', 'El campo "Código" es obligatorio').not().isEmpty(),
     check('code').custom(codeExist),
@@ -25,7 +25,7 @@ router.post('/', [
     check('price', 'El campo "Precio" debe ser un número').isNumeric(),
     check('stock', 'El campo "Stock" es obligatorio').not().isEmpty(),
     check('stock', 'El campo "Stock" debe ser un número').isNumeric(),
-    check('category', 'El campo "Categoría" es obligatorio').not().isEmpty(),
+    check('category', 'El campo "Categoría" es obligatorio').not().isEmpty(), */
     fieldValidate,
     uploader.single('file'), 
 ], addProduct)

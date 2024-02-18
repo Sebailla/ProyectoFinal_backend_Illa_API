@@ -3,6 +3,9 @@ import { CartRepository, UserRepository } from '../repositories/index.repository
 import { createHash, isValidPassword } from '../utils.js'
 import { generateToken } from '../config/jwt.js'
 import { logger } from '../utils/logger.js'
+import config from '../config/config.js'
+import { sendEmail } from '../utils/sendEmail.js'
+import jwt from 'jsonwebtoken'
 
 export const addUser = async (req = request, res = response) => {
     try {
@@ -67,7 +70,7 @@ export const loginUser = async (req = request, res = response) => {
 
 export const revalidToken = async (req = request, res = response) => {
     try {
-        const {_id, firstName, lastName, age, email, role, cart_id} = req
+        const { _id, firstName, lastName, age, email, role, cart_id } = req
 
         const user = await UserRepository.getUserByEmail(email)
 
@@ -75,11 +78,90 @@ export const revalidToken = async (req = request, res = response) => {
 
         logger.info(`Revalidate Token OK - User: ${firstName} ${lastName} - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'revalidate token OK', user, Token: token})
+        return res.json({ msg: 'revalidate token OK', user, Token: token })
 
 
     } catch (error) {
         logger.error(`Error en revalidToken-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
+    }
+}
+
+export const passwordRecovery = async (req = request, res = response) => {
+    try {
+        const { email } = req.body
+
+        const user = await UserRepository.getUserByEmail(email)
+
+        if (!user) {
+            logger.info(`Invalid User: ${email} - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'Invalid User' })
+        }
+        const token = generateToken({ email }, '1h')
+
+        const resetUrl = `${config.urlPasswordReset}?token=${token}`
+
+        sendEmail(email, resetUrl)
+
+        logger.info(`Send email to: ${email} - Password Recovery - ${new Date().toLocaleString()}`)
+
+        return res.json({ msg: 'Sending email OK', token})
+
+
+    } catch (error) {
+        logger.error(`Error en passwordRecovery-controller - ${new Date().toLocaleString()}`)
+
+        return res.status(500).json({ msg: 'Error en servidor' })
+    }
+}
+
+export const passwordRecoveryTokenValidation = async (req = request, res = response) => {
+    try {
+        const { token } = req.query
+
+        const { email } = jwt.verify(token, config.jwtSecretKey)
+
+
+        logger.info(`Token validation OK - ${token} - ${new Date().toLocaleString()}`)
+
+        return res.json({ msg: 'Token Validation OK', email })
+
+
+    } catch (error) {
+        logger.error(`Error en passwordRecoveryTokenValidation-controller - ${new Date().toLocaleString()}`)
+
+        return res.status(400).json({ msg: 'Invalid Token' })
+    }
+}
+
+export const passwordReset = async (req = request, res = response) => {
+    try {
+        const {token, password} = req.body
+        const {email} = jwt.verify(token, config.jwtSecretKey)
+        const user = await UserRepository.getUserByEmail(email)
+
+        
+        if(!user) {
+            logger.warning(`User: ${email} - User not found - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'User not found' })
+        }
+
+        const validPassword = isValidPassword(password, user.password)
+
+        
+        if(validPassword) {
+            logger.warning(`User: ${email} - you must use a different password than the previous ones - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'you must use a different password than the previous ones'})
+        }
+
+        user.password = createHash(password)
+        user.save()
+
+        logger.info(`User: ${email} - Password Successfully Reset - ${new Date().toLocaleString()}`)
+        return res.json({ msg: 'Password Successfully Reset'})
+
+    } catch (error) {
+        logger.error(`Error en passwordReset-controller - ${new Date().toLocaleString()}`)
+        return res.status(500).json({ msg: 'Server error' })
     }
 }

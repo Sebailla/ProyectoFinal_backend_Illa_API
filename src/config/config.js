@@ -17,5 +17,10 @@ export default {
     apiSecret: process.env.API_SECRET,
 
     jwtSecretKey: process.env.JWT_SECRET_KEY,
-    nodeEnv: process.env.NODE_ENV
+    nodeEnv: process.env.NODE_ENV,
+
+    passEmail: process.env.PASS_EMAIL,
+    passUserEmail: process.env.PASS_USER_EMAIL,
+
+    urlPasswordReset: process.env.URL_PASSWORD_RESET,
 }

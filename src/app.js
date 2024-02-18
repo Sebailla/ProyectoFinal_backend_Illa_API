@@ -3,6 +3,7 @@ import express from 'express'
 import { Server } from 'socket.io'
 import __dirname from './utils.js'
 import { addLogger, logger } from './utils/logger.js'
+import cors from 'cors'
 //Variables de entorno
 import config from './config/config.js'
 //Routers
@@ -16,10 +17,10 @@ import chatModel from './dao/mongo/models/chat.model.js'
 import { ProductRepository } from './repositories/index.repository.js'
 
 
-
 // Variables
 const app = express()
 app.use(addLogger)
+app.use(cors())
 
 
 // Rutas urls

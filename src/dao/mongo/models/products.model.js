@@ -1,21 +1,25 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from "mongoose"
 import mongoosePaginate from 'mongoose-paginate-v2'
 
 const productsCollection = 'products'
 
 const productsSchema = new mongoose.Schema({
-  title: {type:String, required:true},
-  description: {type:String, required:true},
-  price: {type:Number, required:true},
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: Number, required: true },
   thumbnail: { type: String },
-  code: {type:String, unique:true},
-  stock: {type:Number, required:true},
-  category: {type:String, required:true},
-  status: {type:Boolean, default: true},
+  code: { type: String, unique: true },
+  stock: { type: Number, required: true },
+  category: { type: String, required: true },
+  status: { type: Boolean, default: true },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'users'
+  }
 })
 
-productsSchema.set('toJSON',{
-  transform: function(doc,ret){
+productsSchema.set('toJSON', {
+  transform: function (doc, ret) {
     delete ret.__v;
     return ret;
   }

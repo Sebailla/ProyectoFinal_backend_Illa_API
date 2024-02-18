@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   age: { type: Number },
   password: { type: String },
-  role: { type: String, default: 'user', enum: ['user', 'admin'] },
+  role: { type: String, default: 'user', enum: ['user', 'premium', 'admin'] },
   status: { type: Boolean, default: true },
   image: { type: String },
   CreateDate: { type: Date, default: Date.now },

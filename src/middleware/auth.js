@@ -5,12 +5,11 @@ import { logger } from '../utils/logger.js'
 
 
 export const admin = (req = request, res = response, next) => {
-    if (!(req.role === 'admin')) {
+    if (!(req.role === 'admin' || req.role === 'premium')) {
         logger.warning(`Unauthorized User - ${new Date().toLocaleString()}`)
         return res.status(403).json({ msg: 'Unauthorized User' })
     }
     next()
-
 }
 
 export const jwtValidity = (req = request, res = response, next) => {

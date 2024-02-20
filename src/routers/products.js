@@ -17,16 +17,6 @@ router.post('/', [
     addLogger,
     jwtValidity,
     admin,
-    /* check('title', 'El campo "Título" es obligatorio').not().isEmpty(),
-    check('description', 'El campo "Descripción" es obligatorio').not().isEmpty(),
-    check('code', 'El campo "Código" es obligatorio').not().isEmpty(),
-    check('code').custom(codeExist),
-    check('price', 'El campo "Precio" es obligatorio').not().isEmpty(),
-    check('price', 'El campo "Precio" debe ser un número').isNumeric(),
-    check('stock', 'El campo "Stock" es obligatorio').not().isEmpty(),
-    check('stock', 'El campo "Stock" debe ser un número').isNumeric(),
-    check('category', 'El campo "Categoría" es obligatorio').not().isEmpty(), */
-    fieldValidate,
     uploader.single('file'), 
 ], addProduct)
 

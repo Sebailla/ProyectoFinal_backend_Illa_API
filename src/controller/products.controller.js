@@ -5,6 +5,7 @@ import { validFileExtension } from "../utils.js"
 
 import { ProductRepository } from "../repositories/index.repository.js"
 import { logger } from "../utils/logger.js"
+import ProductsInsertDTO from "../dto/products.dto.js"
 
 export const getProducts = async (req = request, res = response) => {
     try {
@@ -36,7 +37,10 @@ export const addProduct = async (req = request, res = response) => {
     try {
         const { title, description, price, code, stock, category } = req.body
 
-        if(!title || !description || !price || !code || !stock || !category){
+        //Id del user
+        const { _id } = req
+
+        if (!title || !description || !price || !code || !stock || !category) {
             logger.info(`Incompletes Dates in addProduct - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msg: 'Incompletes Dates' })
         }
@@ -50,6 +54,9 @@ export const addProduct = async (req = request, res = response) => {
             const { secure_url } = await cloudinary.uploader.upload(req.file.path)
             req.body.thumbnail = secure_url
         }
+
+        //asignamos el id del user
+        req.body.owner = _id
 
         const result = await ProductRepository.addProduct({ ...req.body })
 
@@ -107,16 +114,48 @@ export const updateProduct = async (req = request, res = response) => {
 export const deleteProduct = async (req = request, res = response) => {
     try {
         const { pid } = req.params
-        const result = await ProductRepository.deleteProduct(pid)
-        if (result) {
-            logger.info(`Producto eliminado correctamente - ${new Date().toLocaleString()}`)
-            return res.json({ msg: 'Producto eliminado correctamente', result })
-        } else {
-            logger.info(`El producto con Id: ${pid}, no se pudo eliminar - ${new Date().toLocaleString()}`)
-            return res.status(404).json({ msg: `El producto con Id: ${pid}, no se pudo eliminar` })
+
+        //Validar si usuario es premium o admin
+        const { role, _id } = req
+
+        const product = await ProductRepository.getProductById(pid)
+
+        if (!product) {
+            logger.warning(`El producto con ID: ${pid}, no está en existencia - ${new Date().toLocaleString()}`)
+            return res.status(404).json({ msg: `El producto con ID: ${pid}, no está en existencia` })
         }
+
+        if (role === 'premium' && product.owner.toString() === _id) {
+
+            const result = await ProductRepository.deleteProduct(pid)
+
+            if (result) {
+                logger.info(`Producto eliminado correctamente - ${new Date().toLocaleString()}`)
+                return res.json({ msg: 'Producto eliminado correctamente', result })
+            } else {
+                logger.info(`El producto con Id: ${pid}, no se pudo eliminar - ${new Date().toLocaleString()}`)
+                return res.status(404).json({ msg: `El producto con Id: ${pid}, no se pudo eliminar` })
+            }
+        } else if (role === 'admin') {
+
+            const result = await ProductRepository.deleteProduct(pid)
+
+            if (result) {
+                logger.info(`Producto eliminado correctamente - ${new Date().toLocaleString()}`)
+                return res.json({ msg: 'Producto eliminado correctamente', result })
+            } else {
+                logger.info(`El producto con Id: ${pid}, no se pudo eliminar - ${new Date().toLocaleString()}`)
+                return res.status(404).json({ msg: `El producto con Id: ${pid}, no se pudo eliminar` })
+            }
+        } else {
+            logger.warning(`Unauthorized User - ${new Date().toLocaleString()}`)
+            return res.status(403).json({ msg: 'Unauthorized User' })
+        }
+
+
+
     } catch (error) {
-        logger.error(`Error en deleteProduct-controller - ${new Date().toLocaleString()}`)
+        logger.error(`Error en deleteProduct-controller - ${new Date().toLocaleString()}` + error)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }

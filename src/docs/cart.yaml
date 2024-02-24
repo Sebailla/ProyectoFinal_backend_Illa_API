@@ -1,0 +1,300 @@
+paths:
+  /api/carts:
+    get:
+      summary: Obtiene todos los carritos
+      tags:
+        - Carts
+      responses:
+        "200":
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+        "500":
+          description: Error en servidor
+    post:
+      summary: Crea un nuevo carrito
+      tags:
+        - Carts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+      responses:
+        "200":
+          description: Carrito creado corectamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartPost'
+        "500":
+          description: Error en servidor
+  /api/carts/{cid}:
+    get:
+      summary: Devuelve el carrito cuyo id es cid. Si no existe ningún carrito con ese id, se devuelve una respuesta HTTP 404 Not Found.
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: El ID del cart a obtener.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Devuelve el carrito solicitado
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartPost'
+        "400":
+          description: Carrito no encontrado o acceso no autorizado.
+        "500":
+          description: Error en servidor.
+    delete:
+      summary: Borra el carrito según id.
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: El ID del producto a eliminar.
+          schema:
+            type: string 
+      responses:         
+        "200":
+          description: Se ha borrado el carrito correctamente.
+        "500":
+          description: Error en servidor
+  /api/carts/{cid}/products/{pid}:
+    post:
+      summary: Agrega un producto al carrito
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+      responses:
+        "200":
+          description: El pedido con ID xxxxxxxxxx, actualizado corectamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartPost'
+        "400":
+          description: Carrito o Producto, no encontrado o acceso no autorizado
+        "500":
+          description: Error en servidor.
+    put:
+      summary: Actualiza la cantidad de un producto en el carrito
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+      responses:
+        "200":
+          description: El pedido con ID xxxxxxxxxx, actualizado corectamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        "400":
+          description: El pedido con ID xxxxxxxxxx, no se pudo actualizar.
+        "500":
+          description: Error en servidor.
+    delete:
+      summary: Elimina un producto del carrito
+      tags:
+        - Carts
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Producto eliminado corretamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartPost'
+        "400":
+          description: Carrito o Producto, no encontrado o acceso no autorizado. - Error al eliminar producto del pedido.
+        "500":
+          description: Error en servidor.
+  /api/carts/{cid}/purchase:
+    post:
+      summary: Realiza una compra en nombre del usuario con email {email}, utilizando los datos de facturación proporcionados, y envía un correo electrón
+      tags:
+        - Purchases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Purchase"
+      responses:
+        "200":
+          description: Compra realizada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+        "400":
+          description: Carrito no encontrado o acceso no autorizado. - El carrito se encuentra vacio.
+        "500":
+          description: Error en servidor.
+
+#   Components
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID del carrito.
+        products:
+          type: array
+          description: Lista de productos en el carrito.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID del producto.
+              quantity:
+                type: integer
+                description: Cantidad del producto en el carrito.
+      example:
+        _id: ObjectId("6558f1cff388575a4f869339")
+        products:
+          id: ObjectId("6558f1cff388575a65vge5r4")
+          quantity: 3
+    CartPost:
+      type: object
+      properties:
+        msg:
+          type: string
+          description: Carrito creado correctamente.
+        result:
+          type: object
+          properties:
+            _id:
+              type: string
+              description: ID del carrito.
+            products:
+              type: array
+              description: Lista de productos del carrito.
+              items:
+                type: object
+      example:
+        result:
+          _id: ObjectId("6558f1cff388575a4f869339")
+          products: [...]
+    Purchase:
+      type: object
+      properties:
+        msg:
+          type: string
+          description: Compra finalzada corectamente.
+        ticket:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Código único de la compra.
+            items:
+              type: array
+              description: Lista de items comprados.
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: ID del producto.
+                  title:
+                    type: string
+                    description: Nombre del producto.
+                  price:
+                    type: number
+                    description: Precio del producto.
+                  quantity:
+                    type: integer
+                    description: Cantidad del producto comprado.
+                  total:
+                    type: number
+                    description: Precio total del item (precio * cantidad).
+            amount:
+              type: number
+              description: Monto total de la compra.
+            purchaser:
+              type: string
+              description: Email del comprador.
+            purchase_datetime:
+              type: string
+              description: Fecha y hora de la compra.
+      example:
+        msg: Compra finalzada corectamente
+        ticket: 
+          code": 2a96bdba-e805-407f-83fd-d99cd0e6e2fa
+          items:   
+            id: 6558f1cff388575a4f86933a
+            title: Harina Leudante
+            price: 350
+            quantity: 1
+            total: 350
+          amount: 350
+          purchaser: seba.illa.prueba@gmail.com
+          purchase_datetime: 2/23/2024, 2:53:32 PM
+    

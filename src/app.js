@@ -4,6 +4,9 @@ import { Server } from 'socket.io'
 import __dirname from './utils.js'
 import { addLogger, logger } from './utils/logger.js'
 import cors from 'cors'
+import swaggerJsDoc from 'swagger-jsdoc'
+import swaggerUiExpress from 'swagger-ui-express'
+
 //Variables de entorno
 import config from './config/config.js'
 //Routers
@@ -22,6 +25,19 @@ const app = express()
 app.use(addLogger)
 app.use(cors())
 
+const swaggerOption = {
+    definition: {
+        openapi: "3.0.1",
+        info: {
+            title: 'Documentación API Proyecto final Ecommerce',
+            description: '',
+        }
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`],    
+}
+
+const specs = swaggerJsDoc(swaggerOption)
+
 
 // Rutas urls
 app.use(express.static((__dirname + '/public')))
@@ -33,13 +49,14 @@ app.use(express.urlencoded({ extended: true }))
 //Conección a BD MongoDB
 await dbConnection()
 
-
-// Router 
-
+//? --- Router --- 
 app.use('/api/login', LoginRouter)
 app.use('/api/products', ProductsRouter)
 app.use('/api/carts', CartRouter)
 app.use('/', ViewsRouter)
+// Swagger Router
+app.use('/apiDocument', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
+
 
 // Express Server
 const httpServer = app.listen(config.port, () => console.log('listening on port 8080 ...'))
@@ -89,7 +106,3 @@ io.on('connection', async (socket) => {
 
     socket.broadcast.emit('newUser');
 })
-
-
-
-

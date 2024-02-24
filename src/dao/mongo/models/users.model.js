@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, default: 'user', enum: ['user', 'premium', 'admin'] },
   status: { type: Boolean, default: true },
   image: { type: String },
-  CreateDate: { type: Date, default: Date.now },
+  createDate: { type: Date, default: Date.now },
   github: { type: Boolean, default: false },
   google: { type: Boolean, default: false },
   cart_id: {

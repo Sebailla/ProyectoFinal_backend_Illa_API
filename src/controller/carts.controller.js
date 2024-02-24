@@ -104,7 +104,7 @@ export const updateProductInCart = async (req = request, res = response) => {
 
         if (!cart) {
             logger.warning(`El pedido con Id: ${cid}, no se pudo actualizar - ${new Date().toLocaleString()}`)
-            return res.status(404).json({ msg: `El pedido con Id: ${cid}, no se pudo actualizar` })
+            return res.status(400).json({ msg: `El pedido con Id: ${cid}, no se pudo actualizar` })
         } else {
             logger.info(`Pedido Actializado correctamente - ${new Date().toLocaleString()}`)
             return res.json({ msg: 'Pedido Actializado correctamente', cart })

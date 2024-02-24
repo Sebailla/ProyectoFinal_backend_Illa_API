@@ -1,0 +1,213 @@
+paths:
+  /api/products:
+    get:
+      summary: Muestra la lista de todos los productos
+      tags:
+        - Products
+      parameters:
+        - in: query
+          name: page
+          description: Indica el número de pagina a mostrar (por defecto 1)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: Indica la cantidad de productos que se muestran por pagina (por defecto 10)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: sort
+          description: Indica el ordenamiento de productos que se muestran según el precio de los mismo (por defecto es asc (ascendente))
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de Productos correcta
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Error en Servidor
+    post:
+      summary: Crea un nuevo producto
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBody/insertProduct"
+      responses:
+        "200":
+          description: Producto agregado corectamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "400":
+          description: Datos incompetos en el producto (faltan datos)
+        "500":
+          description: Error en Servidor
+  /api/products/{pid}:
+    get:
+      summary: Obtiene un producto específico por su ID
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: El ID del producto a obtener.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Producto encontrado corectamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "400":
+          description: El producto con ID xxxxxxx, no está en existencia
+        "500":
+          description: Error en Servidor
+    put:
+      summary: Actualiza los datos de un producto existente
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: El ID del producto a actualizar.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Products"
+      responses:
+        "200":
+          description: Producto actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: El producto con ID xxxxxxx, no está en existencia
+        "500":
+          description: Error en Servidor
+    delete:
+      summary: Borra un producto existente por su id
+      tags:
+        - Products
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: El ID del producto a borrar.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Producto eliminado correctamente
+        "400":
+          description: El producto con ID xxxxxxx, no está en existencia
+        "500":
+          description: Error en Servidor
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: ID autogenerado por la Base de Datos
+        title:
+          type: string
+          description: Título del producto
+        description:
+          type: string
+          description: Descripción del producto
+        price:
+          type: number
+          description: Precio del producto
+        thumbnail:
+          type: string
+          description: Imagen del producto
+        code:
+          type: string
+          description: Código único del producto
+        stock:
+          type: number
+          description: Cantidad de unidades del producto
+        category:
+          type: string
+          description: Categoría a la cual pertenece el producto
+        status:
+          type: boolean
+          description: Status del producto
+        owner:
+          type: ObjectId
+          description: Nombre del usuario al cual pertenece el producto
+      example:
+        _id: ObjectId("6558f1cff388575a4f869339")
+        title: Vino
+        description: Vino tinto de calidad
+        price: 20.5 
+        thumbnail: /upload/vino_tinto.jpg
+        code: vin1
+        stock: 340
+        category: Bebidas
+        status: true
+  requestBody:
+    insertProduct:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Título del producto
+        description:
+          type: string
+          description: Descripción del producto
+        price:
+          type: number
+          description: Precio del producto
+        thumbnail:
+          type: string
+          description: Imagen del producto
+        code:
+          type: string
+          description: Código único del producto
+        stock:
+          type: number
+          description: Cantidad de unidades del producto
+        category:
+          type: string
+          description: Categoría a la cual pertenece el producto
+        status:
+          type: boolean
+          description: Status del producto
+      example:
+        title: Vino
+        description: Vino tinto de calidad
+        price: 20.5 
+        thumbnail: /upload/vino_tinto.jpg
+        code: vin1
+        stock: 340
+        category: Bebidas
+        status: true
+

@@ -5,7 +5,7 @@ import { validFileExtension } from "../utils.js"
 
 import { ProductRepository } from "../repositories/index.repository.js"
 import { logger } from "../utils/logger.js"
-import ProductsInsertDTO from "../dto/products.dto.js"
+
 
 export const getProducts = async (req = request, res = response) => {
     try {

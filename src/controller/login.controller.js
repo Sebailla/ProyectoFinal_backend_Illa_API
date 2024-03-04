@@ -30,7 +30,7 @@ export const addUser = async (req = request, res = response) => {
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
         logger.info(`New User: ${firstName} ${lastName}, added success - ${new Date().toLocaleString()}`)
-        return res.json({ msg: `New User: ${firstName} ${lastName}, added success`, token })
+        return res.json({ msg: `New User: ${firstName} ${lastName}, added success`, token, user: { _id, firstName, lastName, age, email, role, cart_id }  })
     } catch (error) {
         logger.error(`Error en addUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })

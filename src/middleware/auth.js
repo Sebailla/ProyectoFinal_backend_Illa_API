@@ -13,8 +13,9 @@ export const admin = (req = request, res = response, next) => {
 }
 
 export const jwtValidity = (req = request, res = response, next) => {
-    //const token = req.header('Authorization')?.replace('Bearer ', '')
+    
     const token = req.header('token')
+    
     if (!token) {
         logger.warning(`Unauthorized User - ${new Date().toLocaleString()}`)
         return res.status(401).json({ msg: 'Unauthorized User' })

@@ -58,6 +58,11 @@ describe('Teste Ecommerce', () => {
 
             expect(result.statusCode).to.equal(200);
             expect(result._body.result).to.have.property('_id')
+
+            const pid = result._body.result._id
+
+            await request.delete(`/api/products/${pid}`)
+                .set('token', token)
         })
 
         it('El endpoint /api/products/:pid debe poder eliminar un producto creado previamente para un usurio autenticado', async () => {

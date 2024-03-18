@@ -17,7 +17,12 @@ const userSchema = new mongoose.Schema({
   cart_id: {
     type: Schema.Types.ObjectId,
     ref: 'carts'
-  }
+  },
+  document: {
+    name: {type: String},
+    reference: {type: String},
+  }, 
+  last_connection: {type: Date}
 })
 
 userSchema.set('toJSON', {

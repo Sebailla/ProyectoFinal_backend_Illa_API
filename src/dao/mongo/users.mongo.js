@@ -1,7 +1,7 @@
 import UserModel from './models/users.model.js'
 
-export const getUserById = async (id) => {
-    return await UserModel.findById(id)
+export const getUserById = async (uid) => {
+    return await UserModel.findById(uid)
 }
 
 export const getUserByEmail = async (email) => {

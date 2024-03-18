@@ -59,9 +59,12 @@ export const loginUser = async (req = request, res = response) => {
 
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
+        user.last_connection = new Date().toLocaleString()
+        user.save()
+
         logger.info(`IUser: ${user.firstName} ${user.lastName}, has been login success - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Login is OK', User: `${user.firstName} ${user.lastName}, has been login success`, token, user })
+        return res.json({ msg: 'Login is OK', User: `${user.firstName} ${user.lastName}, has been login success`, token, user, last_connection: new Date().toLocaleString() })
     } catch (error) {
         logger.error(`Error en loginUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
@@ -163,5 +166,27 @@ export const passwordReset = async (req = request, res = response) => {
     } catch (error) {
         logger.error(`Error en passwordReset-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Server error' })
+    }
+}
+
+export const premiumUser = async (req = request, res = response) => {
+    try {
+
+        const { uid } = req.params
+        const user = await UserRepository.getUserById(uid)
+
+        if (!user) {
+            logger.warning(`Incorrect User or password - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ msg: 'Incorrect User or password' })
+        }
+
+        const { role } = user
+
+        logger.info(`IUser: ${user.firstName} ${user.lastName}, ${role} user, has been login success - ${new Date().toLocaleString()}`)
+
+        return res.json({ msg: 'Login is OK', Premium_User: `${user.firstName} ${user.lastName}, has been login success`, user, last_connection: new Date().toLocaleString() })
+    } catch (error) {
+        logger.error(`Error en premiumUser-controller - ${new Date().toLocaleString()}`)
+        return res.status(500).json({ msg: 'Error en servidor' })
     }
 }

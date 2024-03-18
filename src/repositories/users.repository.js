@@ -1,7 +1,7 @@
 import { UserDao } from "../dao/factory.js"
 
-export const getUserById = async (id) => {
-    return await UserDao.getUserById(id)
+export const getUserById = async (uid) => {
+    return await UserDao.getUserById(uid)
 }
 
 export const getUserByEmail = async (email) => {

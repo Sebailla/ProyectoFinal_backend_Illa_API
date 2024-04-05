@@ -5,7 +5,7 @@ export const getCarts = async () => {
 }
 
 export const getCartById = async (cid) => {
-        return await CartsModel.findById(cid).populate('products.id', ['title', 'price', 'stock']).lean()
+        return await CartsModel.findById(cid).populate('products.id', ['title', 'price', 'stock', 'thumbnail']).lean()
 }
 
 export const addCart = async () => {
@@ -34,11 +34,11 @@ export const updateProductInCart = async (cid, pid, quantity) => {
                 { _id: cid, 'products.id': pid },
                 { $set: { 'products.$.quantity': quantity } },
                 { new: true }
-        )
+        ).populate('products.id', ['title', 'price', 'stock', 'thumbnail']).lean()
 }
 
 export const deleteProductInCart = async (cid, pid) => {
-        return await CartsModel.findByIdAndUpdate(cid, { $pull: { 'products': { id: pid } } }, { new: true })
+        return await CartsModel.findByIdAndUpdate(cid, { $pull: { 'products': { id: pid } } }, { new: true }).populate('products.id', ['title', 'price', 'stock', 'thumbnail']).lean()
 }
 
 export const deleteCart = async (cid) => {

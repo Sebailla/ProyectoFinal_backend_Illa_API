@@ -28,12 +28,13 @@ export const jwtValidity = (req = request, res = response, next) => {
             req.firstName = firstName
             req.lastName = lastName
             req.age = age
+            
+            next()
         } catch (error) {
             console.log(error)
             logger.warning(`Invalid Token - ${new Date().toLocaleString()}`)
             return res.status(403).json({ msg: 'Invalid Token' })
         }
     }
-    next()
 }
 

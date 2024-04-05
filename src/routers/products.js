@@ -4,7 +4,6 @@ import { uploader } from '../config/multer.config.js'
 import { admin, jwtValidity } from '../middleware/auth.js'
 import { check } from "express-validator"
 import { fieldValidate} from "../middleware/validate.middleware.js"
-//import { codeExist } from '../helpers/DbValidation.js'
 import { addLogger } from '../utils/logger.js'
 
 const router = Router()

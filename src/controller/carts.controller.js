@@ -234,3 +234,49 @@ export const purchase = async (req = request, res = response) => {
         return res.status(500).json({ msg: 'Internal server error' })
     }
 }
+
+export const endPurchase = async (req = request, res = response) => {
+    try {
+        const { _id } = req;
+        const { cid } = req.params;
+
+        const user = await UserRepository.getUserById(_id);
+
+        if (!(user.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Invalid Cart' });
+
+        const cart = await CartRepository.getCartById(cid);
+
+        if (!(cart.products.length > 0)) return res.status(400).json({ ok: false, msg: 'Cart is empty', cart });
+
+        const productosStockValid = cart.products.filter(p => p.id.stock >= p.quantity);
+
+        const updateQuantity = productosStockValid.map(p =>
+            ProductRepository.updateProduct(p.id._id, { stock: p.id.stock - p.quantity }));
+        await Promise.all(updateQuantity);
+
+
+        const items = productosStockValid.map(i => ({
+            title: i.id.title,
+            price: i.id.price,
+            quantity: i.quantity,
+            total: i.id.price * i.quantity
+        }));
+
+        let amount = 0;
+        items.forEach(element => { amount = amount + element.total });
+        const purchase = usuario.email;
+        const code = uuidv4();
+        const ticketCompra = await TicketRepository.addTicket({ items, amount, purchase, code });
+
+        // enviar email del recibo de la compra
+        sendEmailTicket(usuario.email,code,usuario.name,items,amount);
+
+        await CartRepository.deleteAllProductsInCart(usuario.cart_id);
+
+        return res.json({ ok: true, msg: 'Purchase completed correctly', ticket: { code, cliente: purchase, items, amount } });
+
+    } catch (error) {
+        logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
+        return res.status(500).json({ msg: 'Internal server error' })
+    }
+}

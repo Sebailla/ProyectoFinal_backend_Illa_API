@@ -8,6 +8,10 @@ export const getTicketByEmail = async (email) => {
     return await TicketDao.getTicketByEmail(email)
 }
 
+export const getTicketsByEmail = async (email) => {
+    return await TicketDao.getTicketsByEmail(email)
+}
+
 export const addTicket = async (ticket) => {
     return await TicketDao.addTicket(ticket)
 }

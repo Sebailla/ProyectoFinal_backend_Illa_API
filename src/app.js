@@ -15,6 +15,7 @@ import CartRouter from './routers/cart.js'
 import LoginRouter from './routers/login.js'
 import ViewsRouter from './routers/views.js'
 import UsersRouter from './routers/user.js'
+import TicketRouter from './routers/ticket.js'
 
 import { dbConnection } from './config/mongo.config.js'
 import chatModel from './dao/mongo/models/chat.model.js'
@@ -55,6 +56,7 @@ app.use('/api/login', LoginRouter)
 app.use('/api/products', ProductsRouter)
 app.use('/api/carts', CartRouter)
 app.use('/api/users', UsersRouter)
+app.use('/api/ticket', TicketRouter)
 app.use('/', ViewsRouter)
 // Swagger Router
 app.use('/apiDocument', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))

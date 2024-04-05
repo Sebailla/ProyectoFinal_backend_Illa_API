@@ -170,6 +170,7 @@ export const passwordReset = async (req = request, res = response) => {
 }
 
 export const premiumUser = async (req = request, res = response) => {
+
     try {
 
         const { uid } = req.params
@@ -180,11 +181,11 @@ export const premiumUser = async (req = request, res = response) => {
             return res.status(400).json({ msg: 'Incorrect User or password' })
         }
 
-        const { role } = user
+        const { role, last_connection } = user
 
         logger.info(`IUser: ${user.firstName} ${user.lastName}, ${role} user, has been login success - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Login is OK', Premium_User: `${user.firstName} ${user.lastName}, has been login success`, user, last_connection: new Date().toLocaleString() })
+        return res.json({ msg: 'Login is OK', Premium_User: `${user.firstName} ${user.lastName}, has been login success`, user, last_connection })
     } catch (error) {
         logger.error(`Error en premiumUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })

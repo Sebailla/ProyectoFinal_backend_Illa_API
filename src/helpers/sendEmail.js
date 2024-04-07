@@ -5,7 +5,7 @@ import config from '../config/config.js';
 export const sendEmail = async (email, url) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
+            host: 'gmail',
             port: 587,
             secure: false,
             auth: {
@@ -30,7 +30,7 @@ export const sendEmail = async (email, url) => {
 export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
+            host: 'gmail',
             port: 587,
             secure: false,
             auth: {

@@ -5,21 +5,21 @@ import config from '../config/config.js';
 export const sendEmail = async (email, url) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: 'gmail',
+            host: 'smtp.gmail.com',
             port: 587,
             secure: false,
             auth: {
                 user: config.userEmail,
                 pass: config.passEmail,
             },
-        });
+        })
 
         await transporter.sendMail({
             from: `Ecommerce <seba.illa.prueba@gmail.com>`,
             to: `${email}`,
             subject: 'Cambiar contraseña',
             html: templateHtmlEmail(email, url)
-        });
+        })
 
     } catch (error) {
         logger.error(`Error en sendEmail - ${new Date().toLocaleString()}`)
@@ -30,14 +30,14 @@ export const sendEmail = async (email, url) => {
 export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: 'gmail',
+            host: 'smtp.gmail.com',
             port: 587,
             secure: false,
             auth: {
                 user: config.userEmail,
                 pass: config.passEmail,
             },
-        });
+        })
 
         await transporter.sendMail({
             from: `Ecommerce <seba.illa.prueba@gmail.com>`,

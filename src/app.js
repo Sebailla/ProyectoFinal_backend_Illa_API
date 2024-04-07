@@ -56,7 +56,7 @@ app.use('/api/login', LoginRouter)
 app.use('/api/products', ProductsRouter)
 app.use('/api/carts', CartRouter)
 app.use('/api/users', UsersRouter)
-app.use('/api/ticket', TicketRouter)
+app.use('/api/tickets', TicketRouter)
 app.use('/', ViewsRouter)
 // Swagger Router
 app.use('/apiDocument', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))

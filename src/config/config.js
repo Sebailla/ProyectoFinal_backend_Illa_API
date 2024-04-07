@@ -20,7 +20,7 @@ export default {
     nodeEnv: process.env.NODE_ENV,
 
     passEmail: process.env.PASS_EMAIL,
-    passUserEmail: process.env.PASS_USER_EMAIL,
+    userEmail: process.env.USER_EMAIL,
 
     urlPasswordReset: process.env.URL_PASSWORD_RESET,
 }

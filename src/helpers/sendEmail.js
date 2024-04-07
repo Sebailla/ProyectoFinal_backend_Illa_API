@@ -9,7 +9,7 @@ export const sendEmail = async (email, url) => {
             port: 587,
             secure: false,
             auth: {
-                user: config.passUserEmail,
+                user: config.userEmail,
                 pass: config.passEmail,
             },
         });
@@ -34,7 +34,7 @@ export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra
             port: 587,
             secure: false,
             auth: {
-                user: config.passUserEmail,
+                user: config.userEmail,
                 pass: config.passEmail,
             },
         });

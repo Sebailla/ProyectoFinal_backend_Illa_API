@@ -45,7 +45,8 @@ export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra
             to: `${email}`,
             subject: 'Ticket de compra',
             html: templateHtmlEmailCompra(codigo, cliente, items, totalCompra)
-        });
+            
+        })
 
     } catch (error) {
         logger.error(`Error en sendEmailTicket - ${new Date().toLocaleString()}`)

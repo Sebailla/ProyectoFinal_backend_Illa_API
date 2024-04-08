@@ -103,7 +103,7 @@ export const passwordRecovery = async (req = request, res = response) => {
         const token = generateToken({ email }, '1h')
 
         const resetUrl = `${config.urlPasswordReset}?token=${token}`
-
+        
         sendEmail(email, resetUrl)
 
         logger.info(`Send email to: ${email} - Password Recovery - ${new Date().toLocaleString()}`)

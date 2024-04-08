@@ -1,10 +1,10 @@
 import { request, response } from "express"
-
 import { CartRepository, ProductRepository, TicketRepository, UserRepository } from "../repositories/index.repository.js"
-
+import { sendEmailTicket } from '../helpers/sendEmail.js'
 import { v4 as uuidv4 } from 'uuid'
-
 import { logger } from "../utils/logger.js"
+import { MercadoPagoConfig, Preference } from 'mercadopago'
+import config from '../config/config.js'
 
 export const getCarts = async (req = request, res = response) => {
     try {
@@ -216,16 +216,15 @@ export const purchase = async (req = request, res = response) => {
 
         const purchase_datetime = new Date().toLocaleString()
 
-        await TicketRepository.addTicket({ code, items, amount, purchaser, purchase_datetime })
+        const ticket = await TicketRepository.addTicket({ code, items, amount, purchaser, purchase_datetime })
 
+        sendEmailTicket(user.email, ticket)
         //Si no hay stock suficiente no se agrega el producto
 
         const cartId = user.cart_id
-        for (let product of cart.products) {
-            if (stock.some(s => s.id._id === product.id._id)) {
-                await CartRepository.deleteProductInCart(cartId, product.id._id)
-            }
-        }
+        
+        await CartRepository.deleteAllProductsInCart(cartId)
+
         logger.info(`Compra finalzada corectamente - Ticket: ${code} - ${new Date().toLocaleString()}`)
         return res.json({ msg: 'Compra finalzada corectamente', ticket: { code, items, amount, purchaser, purchase_datetime }})
 
@@ -235,48 +234,47 @@ export const purchase = async (req = request, res = response) => {
     }
 }
 
-export const endPurchase = async (req = request, res = response) => {
+export const createIdPreference = async (req = request, res = response) => {
     try {
-        const { _id } = req;
-        const { cid } = req.params;
+        const { _id } = req
+        const { cid } = req.params
+        const client = new MercadoPagoConfig({ accessToken: config.mpAccessToken })
 
-        const user = await UserRepository.getUserById(_id);
+        const cart = await CartRepository.getCartById(cid)
 
-        if (!(user.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Invalid Cart' });
+        const items = cart.products.map(item => {
+            return {
+                title: item.id.title,
+                unit_price: Number(item.id.price),
+                quantity: Number(item.quantity),
+                currency_id: 'ARS'
+            }
+        })
 
-        const cart = await CartRepository.getCartById(cid);
+        const back_urls = {
+            // success: 'https://ecommerce-comics.netlify.app/confirm-compra',
+            // failure: 'https://ecommerce-comics.netlify.app/',
+            // pending: 'https://ecommerce-comics.netlify.app/'
+            success: 'http://localhost:5173/carts',
+            failure: 'http://localhost:5173/carts',
+            pending: 'http://localhost:5173/carts'
+        }
 
-        if (!(cart.products.length > 0)) return res.status(400).json({ ok: false, msg: 'Cart is empty', cart });
+        const body = {
+            items:items,
+            back_urls:back_urls,
+            auto_return: 'approved'
+        };
 
-        const productosStockValid = cart.products.filter(p => p.id.stock >= p.quantity);
+        const preference = new Preference(client);
+        const result = await preference.create({ body });
 
-        const updateQuantity = productosStockValid.map(p =>
-            ProductRepository.updateProduct(p.id._id, { stock: p.id.stock - p.quantity }));
-        await Promise.all(updateQuantity);
+        return res.json({ ok: true, idPreference: result.id })
 
-
-        const items = productosStockValid.map(i => ({
-            title: i.id.title,
-            price: i.id.price,
-            quantity: i.quantity,
-            total: i.id.price * i.quantity
-        }));
-
-        let amount = 0;
-        items.forEach(element => { amount = amount + element.total });
-        const purchase = usuario.email;
-        const code = uuidv4();
-        const ticketCompra = await TicketRepository.addTicket({ items, amount, purchase, code });
-
-        // enviar email del recibo de la compra
-        sendEmailTicket(usuario.email,code,usuario.name,items,amount);
-
-        await CartRepository.deleteAllProductsInCart(usuario.cart_id);
-
-        return res.json({ ok: true, msg: 'Purchase completed correctly', ticket: { code, cliente: purchase, items, amount } });
 
     } catch (error) {
         logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Internal server error' })
     }
 }
+

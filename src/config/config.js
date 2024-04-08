@@ -23,4 +23,6 @@ export default {
     userEmail: process.env.USER_EMAIL,
 
     urlPasswordReset: process.env.URL_PASSWORD_RESET,
+
+    mpAccessToken: process.env.MP_ACCESS_TOKEN,
 }

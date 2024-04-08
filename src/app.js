@@ -6,6 +6,7 @@ import { addLogger, logger } from './utils/logger.js'
 import cors from 'cors'
 import swaggerJsDoc from 'swagger-jsdoc'
 import swaggerUiExpress from 'swagger-ui-express'
+import http from 'http'
 
 //Variables de entorno
 import config from './config/config.js'
@@ -62,15 +63,36 @@ app.use('/', ViewsRouter)
 app.use('/apiDocument', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 
-// Express Server
-const httpServer = app.listen(config.port, () => console.log('listening on port 8080 ...'))
 
 // WebSocket Server
-const io = new Server(httpServer)
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173'
+    }
+});
+
+// Express Server
+//app.listen(config.port, () => console.log('listening on port 8080 ...'))
+
+
 
 //?  WebSocket connection
 //-------------------------------------------------
-io.on('connection', async (socket) => {
+
+io.on('connection', socket => {
+    console.log('Cliente conectado');
+
+    socket.on('mensaje', data => {
+        console.log({ data });
+
+        socket.broadcast.emit('mensaje', data);
+    })
+})
+
+server.listen(config.port, () => { logger.info(`Corriendo aplicacion en el puerto ${config.port}`) })
+
+/* io.on('connection', async (socket) => {
 
     logger.info(`New Client connected on front - ${new Date().toLocaleString()}`)
 
@@ -109,4 +131,4 @@ io.on('connection', async (socket) => {
     });
 
     socket.broadcast.emit('newUser');
-})
+}) */

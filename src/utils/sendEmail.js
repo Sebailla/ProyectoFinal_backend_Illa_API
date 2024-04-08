@@ -3,13 +3,14 @@ import { logger } from './logger.js'
 import config from '../config/config.js'
 
 export const sendEmail = async (email, resetUrl) => {
+    
     try {
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
             secure: false,
             auth: {
-                user: config.passUserEmail,
+                user: config.userEmail,
                 pass: config.passEmail
             },
         })

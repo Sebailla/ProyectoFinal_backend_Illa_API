@@ -95,11 +95,11 @@ export const updateProductInCart = async (req = request, res = response) => {
     try {
         const { cid, pid } = req.params
         const { quantity } = req.body
-        if (!quantity || !Number.isInteger(quantity)){
+        if (!quantity || !Number.isInteger(quantity)) {
             logger.warning(`La cantidad debe ser un número - ${new Date().toLocaleString()}`)
             return res.status(404).json({ msg: 'La cantidad debe ser un número' })
         }
-            
+
         const cart = await CartRepository.updateProductInCart(cid, pid, quantity)
 
         if (!cart) {
@@ -176,57 +176,46 @@ export const purchase = async (req = request, res = response) => {
         const { _id } = req
         const { cid } = req.params
 
-        const user = await UserRepository.getUserById(_id)
+        const usuario = await UserRepository.getUserById(_id)
+        console.log(usuario)
 
-        if (!(user.cart_id.toString() === cid)) {
-            logger.warning(`Cart not found - ${new Date().toLocaleString()}`)
-            return res.status(400).json({ msn: 'Cart not found' })
-        }
+        if (!(usuario.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Carrito no es valido!' })
 
-        const cart = await CartRepository.getCartById(cid)
+        const carrito = await CartRepository.getCartById(cid)
+        console.log(carrito)
 
-        //Validar stock del producto
-        if (!(cart.products.length > 0)) {
-            logger.info(`Cart empty - ${new Date().toLocaleString()}`)
-            return res.status(400).json({ msn: 'Cart empty', cart })
-        }
-        const stock = cart.products.filter(p => p.id.stock >= p.quantity)
+        if (!(carrito.products.length > 0)) return res.status(400).json({ ok: false, msg: 'No se puede finalizar la compra, carrito vacio!', carrito })
 
-        //Atualizar stock
-        const newStock = stock.map(p => ProductRepository.updateProduct(p.id._id, { stock: p.id.stock - p.quantity }))
-        await Promise.all(newStock)
+        const productosStockValid = carrito.products.filter(p => p.id.stock >= p.quantity)
 
-        //Crear Ticket (code, amount, purchaser)
-        const items = stock.map(i => (
-            {
-                id: i.id._id,
-                title: i.id.title,
-                price: i.id.price,
-                quantity: i.quantity,
-                total: i.id.price * i.quantity
-            }
-        ))
+        const actualizacionesQuantity = productosStockValid.map(p =>
+            ProductRepository.updateProduct(p.id._id, { stock: p.id.stock - p.quantity }))
+        await Promise.all(actualizacionesQuantity)
 
-        let amount = 0
-        items.forEach(e => { amount += e.total })
 
-        const code = uuidv4()  //Genero code autoincrementable
+        const items = productosStockValid.map(i => ({
+            title: i.id.title,
+            price: i.id.price,
+            quantity: i.quantity,
+            total: i.id.price * i.quantity
+        }))
 
-        const purchaser = user.email
+        let amount = 0;
+        items.forEach(element => { amount = amount + element.total })
+        const purchaser = usuario.email
+        const code = uuidv4()
+        const ticketCompra = await TicketRepository.addTicket({ items, amount, purchaser, code })
+        let userName = `${usuario.lastName}, ${usuario.firstName}`
 
-        const purchase_datetime = new Date().toLocaleString()
+        // enviar email del recibo de la compra
+        sendEmailTicket(purchaser, code, userName, items, amount  )
+        logger.info(`Email enviado corectamente a: ${purchaser} - ${new Date().toLocaleString()}`)
 
-        const ticket = await TicketRepository.addTicket({ code, items, amount, purchaser, purchase_datetime })
-
-        sendEmailTicket(user.email, ticket)
-        //Si no hay stock suficiente no se agrega el producto
-
-        const cartId = user.cart_id
+        await CartRepository.deleteAllProductsInCart(usuario.cart_id)
         
-        await CartRepository.deleteAllProductsInCart(cartId)
-
         logger.info(`Compra finalzada corectamente - Ticket: ${code} - ${new Date().toLocaleString()}`)
-        return res.json({ msg: 'Compra finalzada corectamente', ticket: { code, items, amount, purchaser, purchase_datetime }})
+        
+        return res.json({ ok: true, msg: 'Compra generada', ticket: { code, purchaser, items, amount } })
 
     } catch (error) {
         logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
@@ -261,8 +250,8 @@ export const createIdPreference = async (req = request, res = response) => {
         }
 
         const body = {
-            items:items,
-            back_urls:back_urls,
+            items: items,
+            back_urls: back_urls,
             auto_return: 'approved'
         };
 

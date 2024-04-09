@@ -4,57 +4,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <title>Api Rest</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>Api Tienda Comics</title>
 </head>
 
 <body>
-    <header>API de Ecommers - Coderhouse - Documentación</header>
+    <header>
+        <h1>API Tienda Comics - Documentación</h1>
+    </header>
+
     <main>
-        <div>
-            <details>
-                <summary>Login</summary>
-                <div>
-                    <h2>(POST): /api/login/login</h2>
-                    <p>Endpoint para login de usuario</p>
-                    <p>Parametros</p>
-                    <ul>
-                        <li>email (string)</li>
-                        <li>password (string)<li>
-                    </ul>
-                </div>
 
-                <div>
-                    <h2>(POST): /api/login/register</h2>
-                    <p>Endpoint para registro de usuario</p>
-                    <p>Parametros</p>
-                    <ul>
-                        <li>email (string)</li>
-                        <li>password (string)<li>
-                    </ul>
-                </div>
+        <details>
+            <summary>Autenticación</summary>
+            <div class="endpoint-details">
+                <h2>/api/auth/login (POST)</h2>
+                <p>Endpoint para iniciar sesión de usuario.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>email (String)<span class="required"> requerido </span>: El email del usuario.</li>
+                    <li>password (String)<span class="required"> requerido </span>: La contraseña del usuario (min de
+                        caracteres 6).</li>
+                </ul>
+            </div>
 
-            </details>
+            <div class="endpoint-details">
+                <h2>/api/auth/register (POST)</h2>
+                <p>Endpoint para registrar un nuevo usuario.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>name (String)<span class="required"> requerido </span>: El nombre del usuario.</li>
+                    <li>lastName (String)<span class="required"> requerido </span>: El apellido del usuario.</li>
+                    <li>email (String)<span class="required"> requerido </span>: El email del usuario.</li>
+                    <li>password (String)<span class="required"> requerido </span>: La contraseña del usuario (min de
+                        caracteres 6).</li>
+                </ul>
+            </div>
+        </details>
 
-            <details>
-                <summary>Products</summary>
-                <div>
-                    <h2>(GET): /api/products</h2>
-                    <p>Endpoint para ver todos los productos</p>
-                    <p>Parametros</p>
-                    <ul>
-                        <li>email (string)</li>
-                        <li>password (string)<li>
-                    </ul>
-                </div>
-            </details>
+        <details>
+            <summary>Productos</summary>
+            <div class="endpoint-details">
+                <h2>/api/auth/products (GET)</h2>
+                <p>Endpoint para obtener productos paginados.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>limit (Number): limite de elementos a obtener.</li>
+                    <li>page (Number): el numero de la pagina.</li>
+                    <li>sort (String): tipo de ordenamiento ('asc', 'desc').</li>
+                    <li>query (String): Query personalizada de busqueda.</li>
+                </ul>
+				<p><strong>Nota:</strong> Este endpoint requiere autenticación. Debes incluir el token JWT en el encabezado "x-token" de la solicitud para acceder a él.</p>
+            </div>
 
-            <details>
-                <summary>Cart</summary>
+            <div class="endpoint-details">
+                <h2>/api/auth/products/:pid (GET)</h2>
+                <p>Endpoint para obtener un producto por id.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>pid (String)<span class="required"> requerido </span>: Id de mongo valido.</li>
+                </ul>
+            </div>
 
-            </details>
+            <div class="endpoint-details">
+                <h2>/api/auth/products (POST)</h2>
+                <p>Endpoint para crear un nuevo producto.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>title (String)<span class="required"> requerido </span>: Titulo del producto.</li>
+                    <li>description (String)<span class="required"> requerido </span>: Descripcion del producto.</li>
+                    <li>code (String)<span class="required"> requerido </span>: Codigo unico del del producto.</li>
+                    <li>price (Number)<span class="required"> requerido </span>: Precio del producto.</li>
+                    <li>stock (Number)<span class="required"> requerido </span>: Stock del producto.</li>
+                    <li>category (String)<span class="required"> requerido </span>: Categoria del producto.</li>
+                    <li>file (file): Imagen con extensiones validas ['png', 'jpg', 'jpeg'].</li>
+                </ul>
+            </div>
 
-        </div>
+            <div class="endpoint-details">
+                <h2>/api/auth/products/:pid (PUT)</h2>
+                <p>Endpoint para actualizar un producto.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>pid (String)<span class="required"> requerido </span>: Id del producto y debe ser un id valido
+                        de
+                        mongo.</li>
+                    <li>title (String): Titulo del producto.</li>
+                    <li>description (String): Descripcion del producto.</li>
+                    <li>code (String): Codigo unico del del producto.</li>
+                    <li>price (Number): Precio del producto.</li>
+                    <li>stock (Number): Stock del producto.</li>
+                    <li>category (String): Categoria del producto.</li>
+                    <li>file (file): Imagen con extensiones validas ['png', 'jpg', 'jpeg'].</li>
+                </ul>
+            </div>
+
+            <div class="endpoint-details">
+                <h2>/api/auth/products/:pid (DELETE)</h2>
+                <p>Endpoint para eliminar un producto.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>pid (String)<span class="required"> requerido </span>: Id del producto y debe ser un id valido
+                        de
+                        mongo.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details>
+            <summary>Carrito</summary>
+            <div class="endpoint-details">
+                <h2>/api/auth/carts/:cid (GET)</h2>
+                <p>Endpoint para obtener un carrito.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>cid (String)<span class="required"> requerido </span>: Id del carrito y debe ser un id valido de
+                        mongo.</li>
+                </ul>
+            </div>
+
+            <div class="endpoint-details">
+                <h2>/api/auth/carts/:cid/product/:pid (POST)</h2>
+                <p>Endpoint para obtener agregar un producto al carrito.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>cid (String)<span class="required"> requerido </span>: Id del carrito y debe ser un id valido de
+                        mongo.</li>
+                    <li>pid (String)<span class="required"> requerido </span>: Id del producto y debe ser un id valido
+                        de
+                        mongo.</li>
+                </ul>
+            </div>
+
+            <div class="endpoint-details">
+                <h2>/api/auth/carts/:cid/product/:pid (DELETE)</h2>
+                <p>Endpoint para eliminar productos de un carrito.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>cid (String)<span class="required"> requerido </span>: Id del carrito y debe ser un id valido de
+                        mongo.</li>
+                    <li>pid (String)<span class="required"> requerido </span>: Id del producto y debe ser un id valido
+                        de
+                        mongo.</li>
+                </ul>
+            </div>
+
+            <div class="endpoint-details">
+                <h2>/api/auth/carts/:cid/product/:pid (PUT)</h2>
+                <p>Endpoint para obtener productos.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>cid (String)<span class="required"> requerido </span>: Id del carrito y debe ser un id valido de
+                        mongo.</li>
+                    <li>pid (String)<span class="required"> requerido </span>: Id del producto y debe ser un id valido
+                        de
+                        mongo.</li>
+                    <li>quantity (Number)<span class="required"> requerido </span>: Cantidad del producto.</li>
+                </ul>
+            </div>
+
+            <div class="endpoint-details">
+                <h2>/api/auth/carts/:cid/purchase (POST)</h2>
+                <p>Endpoint para obtener productos.</p>
+                <p>Parámetros:</p>
+                <ul>
+                    <li>cid (String)<span class="required"> requerido </span>: Id del carrito y debe ser un id valido de
+                        mongo.</li>
+                </ul>
+            </div>
+        </details>
     </main>
 </body>
 

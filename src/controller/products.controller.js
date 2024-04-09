@@ -36,7 +36,7 @@ export const getProductById = async (req = request, res = response) => {
 export const addProduct = async (req = request, res = response) => {
     try {
         const { title, description, price, code, stock, category } = req.body
-
+        console.log(req.body)
         //Id del user
         const { _id } = req
 

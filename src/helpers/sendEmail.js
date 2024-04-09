@@ -38,19 +38,17 @@ export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra
                 user: config.userEmail,
                 pass: config.passEmail,
             },
-        })
+        });
 
         await transporter.sendMail({
             from: `Ecommerce <seba.illa.prueba@gmail.com>`,
             to: `${email}`,
             subject: 'Ticket de compra',
             html: templateHtmlEmailCompra(codigo, cliente, items, totalCompra)
-            
-        })
+        });
 
     } catch (error) {
-        logger.error(`Error en sendEmailTicket - ${new Date().toLocaleString()}`)
-        return res.status(500).json({ msg: 'Error en servidor' })
+        logger.error(error)
     }
 }
 
@@ -61,7 +59,7 @@ const templateHtmlEmailCompra = (codigo, cliente, items, totalCompra) => {
             <h2>Ticket de Compra</h2>
             <h3>Código: ${codigo}</h3>
             <p>Estimado(a) ${cliente},</p>
-            <p>¡Gracias por comprar en Aqualife!</p>
+            <p>¡Gracias por tu compra!</p>
             <h3>Detalles de la compra:</h3>
             <ul>
                 ${items.map(item => `

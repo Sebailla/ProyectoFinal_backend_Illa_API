@@ -48,7 +48,7 @@ if(config.nodeEnv !== 'production'){
         new winston.transports.File({
             level: 'error',
             format: winston.format.json(),
-            filename: './errors.log'
+            filename: './error.log'
         })
     )
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getCarts, getCartById, addCart, addProductToCart, deleteCart, deleteProductInCart, updateProductInCart, purchase } from '../controller/carts.controller.js'
+import { getCarts, getCartById, addCart, addProductToCart, deleteCart, deleteProductInCart, updateProductInCart, purchase, createIdPreference } from '../controller/carts.controller.js'
 import { admin, jwtValidity } from '../middleware/auth.js'
 import { check } from 'express-validator'
 import { cartExist } from '../helpers/DbValidation.js'
@@ -35,5 +35,13 @@ router.post('/:cid/purchase', [
     check('cid').custom(cartExist),
     fieldValidate,
 ], purchase)
+
+router.post('/createPreference/:cid', [
+    addLogger,
+    jwtValidity,
+    check('cid', 'No es valido el ID del carrito').isMongoId(),
+    check('cid').custom(cartExist),
+    fieldValidate,
+], createIdPreference);
 
 export default router

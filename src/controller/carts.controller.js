@@ -273,7 +273,7 @@ export const createIdPreference = async (req = request, res = response) => {
 
 
     } catch (error) {
-        logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
+        logger.error(`Error en createIdPreference-Mercado Pago - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Internal server error' })
     }
 }

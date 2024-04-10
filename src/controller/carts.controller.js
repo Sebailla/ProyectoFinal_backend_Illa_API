@@ -83,6 +83,7 @@ export const addProductToCart = async (req = request, res = response) => {
         }
 
         logger.info(`El pedido con ID: ${cid}, actualizado corectamente - ${new Date().toLocaleString()}`)
+        
         return res.json({ msg: `El pedido con ID: ${cid}, actualizado corectamente`, result })
 
     } catch (error) {
@@ -177,12 +178,12 @@ export const purchase = async (req = request, res = response) => {
         const { cid } = req.params
 
         const usuario = await UserRepository.getUserById(_id)
-        console.log(usuario)
+        console.log({usuario})
 
         if (!(usuario.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Carrito no es valido!' })
 
         const carrito = await CartRepository.getCartById(cid)
-        console.log(carrito)
+        console.log({carrito})
 
         if (!(carrito.products.length > 0)) return res.status(400).json({ ok: false, msg: 'No se puede finalizar la compra, carrito vacio!', carrito })
 

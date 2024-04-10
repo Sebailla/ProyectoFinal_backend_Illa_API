@@ -14,6 +14,7 @@ export const addCart = async () => {
 
 export const addProductToCart = async (cid, pid) => {
         const result = await CartsModel.findById(cid)
+        
         if (!result) {
                 return null
         } else {

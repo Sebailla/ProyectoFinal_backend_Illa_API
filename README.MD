@@ -47,5 +47,5 @@ npm run dev
 * Socket.io
 * MercadoPago
 
-## Autor ✒️
+## Autor
 * **Sebastián Illa** 

@@ -19,9 +19,6 @@ import UsersRouter from './routers/user.js'
 import TicketRouter from './routers/ticket.js'
 
 import { dbConnection } from './config/mongo.config.js'
-import chatModel from './dao/mongo/models/chat.model.js'
-import { ProductRepository } from './repositories/index.repository.js'
-
 
 // Variables
 const app = express()
@@ -62,73 +59,27 @@ app.use('/', ViewsRouter)
 // Swagger Router
 app.use('/apiDocument', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
-
-
 // WebSocket Server
-const server = http.createServer(app);
+const server = http.createServer(app)
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173'
+        //origin: config.originWebSicketDev
+        origin: config.originWebSocketProd
     }
-});
-
-// Express Server
-//app.listen(config.port, () => console.log('listening on port 8080 ...'))
-
-
+})
 
 //?  WebSocket connection
 //-------------------------------------------------
 
 io.on('connection', socket => {
-    console.log('Cliente conectado');
+    console.log('Cliente conectado')
 
     socket.on('mensaje', data => {
-        console.log({ data });
+        console.log({ data })
 
-        socket.broadcast.emit('mensaje', data);
+        socket.broadcast.emit('mensaje', data)
     })
 })
 
 server.listen(config.port, () => { logger.info(`Corriendo aplicacion en el puerto ${config.port}`) })
 
-/* io.on('connection', async (socket) => {
-
-    logger.info(`New Client connected on front - ${new Date().toLocaleString()}`)
-
-    socket.on('disconnect', () => {
-        logger.info(`Cliente sin conección - ${new Date().toLocaleString()}`)
-    })
-
-    //? Productos
-    // Enviamos productos al Cliente
-    const { payload } = await ProductRepository.getProducts({ limit: 10000 })
-    const products = payload
-    socket.emit('getProducts', payload)
-
-    // Agregamos productos
-    socket.on('postProducts', async (productData) => {
-        const newProduct = await ProductRepository.addProduct({ ...productData })
-        if (newProduct) {
-            products.push(newProduct)
-            socket.emit('postProducts', products)
-        }
-
-    })
-
-
-    //? Chat
-
-    const messages = await chatModel.find();
-    socket.emit('message', messages);
-
-    socket.on('message', async (data) => {
-        const newMessage = await chatModel.create({ ...data });
-        if (newMessage) {
-            const messages = await chatModel.find();
-            io.emit('messageLogs', messages)
-        }
-    });
-
-    socket.broadcast.emit('newUser');
-}) */

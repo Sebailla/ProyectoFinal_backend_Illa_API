@@ -25,4 +25,7 @@ export default {
     urlPasswordReset: process.env.URL_PASSWORD_RESET,
 
     mpAccessToken: process.env.MP_ACCESS_TOKEN,
+
+    originWebSicketDev: process.env.ORIGIN_WEBSOCKET_DEV,
+    originWebSocketProd: process.env.ORIGIN_WEBSOCKET_PROD
 }

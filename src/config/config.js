@@ -27,5 +27,9 @@ export default {
     mpAccessToken: process.env.MP_ACCESS_TOKEN,
 
     originWebSicketDev: process.env.ORIGIN_WEBSOCKET_DEV,
-    originWebSocketProd: process.env.ORIGIN_WEBSOCKET_PROD
+    originWebSocketProd: process.env.ORIGIN_WEBSOCKET_PROD,
+
+    mpBackUrlsSeccess: process.env.MP_BACK_URLS_SUCCESS,
+    mpBackUrlsFailure: process.env.MP_BACK_URLS_FAILURE,
+    mpBackUrlsPending: process.env.MP_BACK_URLS_PENDING,
 }

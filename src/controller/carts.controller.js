@@ -35,20 +35,10 @@ export const getCartById = async (req = request, res = response) => {
 
         const result = await CartRepository.getCartById(cid)
 
-        return res.json({ result })
+        return res.json({ ok: true, result })
 
     } catch (error) {
         logger.error(`Error en getCartById-controller - ${new Date().toLocaleString()}`)
-        return res.status(500).json({ msg: 'Error en servidor' })
-    }
-}
-
-export const addCart = async (req = request, res = response) => {
-    try {
-        const result = await CartRepository.addCart()
-        return res.json({ msg: 'Pedido creado correctamente', result })
-    } catch (error) {
-        logger.error(`Error en addCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
     }
 }
@@ -83,7 +73,7 @@ export const addProductToCart = async (req = request, res = response) => {
         }
 
         logger.info(`El pedido con ID: ${cid}, actualizado corectamente - ${new Date().toLocaleString()}`)
-        
+
         return res.json({ msg: `El pedido con ID: ${cid}, actualizado corectamente`, result })
 
     } catch (error) {
@@ -93,23 +83,45 @@ export const addProductToCart = async (req = request, res = response) => {
 }
 
 export const updateProductInCart = async (req = request, res = response) => {
+
     try {
+        const { _id } = req
         const { cid, pid } = req.params
         const { quantity } = req.body
-        if (!quantity || !Number.isInteger(quantity)) {
+        console.log({ _id, cid, pid, quantity })
+
+        const user = await UserRepository.getUserById(_id)
+        console.log({ user })
+
+        if (!user) {
+            logger.warning(`User not found - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ ok: false, msn: 'User not found' })
+        }
+
+        if (!(user.cart_id.toString() === cid)) {
+            logger.warning(`El pedido con ID: ${cid}, no existe - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ ok: false, msg: `El pedido con ID: ${cid}, no existe` })
+        }
+
+        const product = await ProductRepository.getProductById(pid)
+        console.log({ product })
+
+        if (!product) {
+            logger.warning(`El producto con ID: ${pid}, no existe - ${new Date().toLocaleString()}`)
+            return res.status(400).json({ ok: false, msg: `El producto con ID: ${pid}, no existe` })
+        }
+
+        /* if (!quantity || !Number.isInteger(quantity)) {
             logger.warning(`La cantidad debe ser un número - ${new Date().toLocaleString()}`)
             return res.status(404).json({ msg: 'La cantidad debe ser un número' })
-        }
+        } */
+        console.log({ quantity })
 
         const cart = await CartRepository.updateProductInCart(cid, pid, quantity)
 
-        if (!cart) {
-            logger.warning(`El pedido con Id: ${cid}, no se pudo actualizar - ${new Date().toLocaleString()}`)
-            return res.status(400).json({ msg: `El pedido con Id: ${cid}, no se pudo actualizar` })
-        } else {
-            logger.info(`Pedido Actializado correctamente - ${new Date().toLocaleString()}`)
-            return res.json({ msg: 'Pedido Actializado correctamente', cart })
-        }
+        logger.info(`Pedido Actializado correctamente - ${new Date().toLocaleString()}`)
+        return res.json({ msg: 'Pedido Actializado correctamente', cart })
+
     } catch (error) {
         logger.error(`Error en updateProductInCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
@@ -122,7 +134,7 @@ export const deleteProductInCart = async (req = request, res = response) => {
         const { cid, pid } = req.params
         const user = await UserRepository.getUserById(_id)
         const product = await ProductRepository.getProductById(pid)
-
+        console.log({ _id, cid, pid, user, product })
         if (!user) {
             logger.warning(`User not found - ${new Date().toLocaleString()}`)
             return res.status(400).json({ msn: 'User not found' })
@@ -139,14 +151,11 @@ export const deleteProductInCart = async (req = request, res = response) => {
         }
 
         const result = await CartRepository.deleteProductInCart(cid, pid)
+        console.log(result)
+        
+        logger.info(`Producto eliminado - ${new Date().toLocaleString()}`)
+        return res.json({ msg: 'Producto eliminado', result })
 
-        if (!result) {
-            logger.warning(`Error al eliminar producto del pedido - ${new Date().toLocaleString()}`)
-            return res.status(400).json({ msg: 'Error al eliminar producto del pedido' })
-        } else {
-            logger.info(`Producto eliminado - ${new Date().toLocaleString()}`)
-            return res.json({ msg: 'Producto eliminado', result })
-        }
     } catch (error) {
         logger.error(`Error en deleteProductInCart-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
@@ -177,20 +186,21 @@ export const purchase = async (req = request, res = response) => {
         const { _id } = req
         const { cid } = req.params
 
-        const usuario = await UserRepository.getUserById(_id)
-        console.log({usuario})
+        const user = await UserRepository.getUserById(_id)
+        console.log({ user })
 
-        if (!(usuario.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Carrito no es valido!' })
+        if (!(user.cart_id.toString() === cid)) return res.status(400).json({ ok: false, msg: 'Carrito no es valido!' })
 
-        const carrito = await CartRepository.getCartById(cid)
-        console.log({carrito})
+        const cart = await CartRepository.getCartById(cid)
+        console.log({ cart })
 
-        if (!(carrito.products.length > 0)) return res.status(400).json({ ok: false, msg: 'No se puede finalizar la compra, carrito vacio!', carrito })
+        if (!(cart.products.length > 0)) return res.status(400).json({ ok: false, msg: 'No se puede finalizar la compra, carrito vacio!', cart })
 
-        const productosStockValid = carrito.products.filter(p => p.id.stock >= p.quantity)
+        const productosStockValid = cart.products.filter(p => p.id.stock >= p.quantity)
 
         const actualizacionesQuantity = productosStockValid.map(p =>
             ProductRepository.updateProduct(p.id._id, { stock: p.id.stock - p.quantity }))
+
         await Promise.all(actualizacionesQuantity)
 
 
@@ -203,20 +213,21 @@ export const purchase = async (req = request, res = response) => {
 
         let amount = 0;
         items.forEach(element => { amount = amount + element.total })
-        const purchaser = usuario.email
+        const purchaser = user.email
         const code = uuidv4()
         const ticketCompra = await TicketRepository.addTicket({ items, amount, purchaser, code })
-        let userName = `${usuario.lastName}, ${usuario.firstName}`
+
+        let userName = `${user.lastName}, ${user.firstName}`
 
         // enviar email del recibo de la compra
-        sendEmailTicket(purchaser, code, userName, items, amount  )
+        sendEmailTicket(purchaser, code, userName, items, amount)
         logger.info(`Email enviado corectamente a: ${purchaser} - ${new Date().toLocaleString()}`)
 
-        await CartRepository.deleteAllProductsInCart(usuario.cart_id)
-        
+        await CartRepository.deleteAllProductsInCart(user.cart_id)
+
         logger.info(`Compra finalzada corectamente - Ticket: ${code} - ${new Date().toLocaleString()}`)
-        
-        return res.json({ ok: true, msg: 'Compra generada', ticket: { code, purchaser, items, amount } })
+
+        return res.json({ ok: true, msg: 'Compra generada', ticket: { code, Cliente:purchaser, items, amount } })
 
     } catch (error) {
         logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
@@ -231,6 +242,7 @@ export const createIdPreference = async (req = request, res = response) => {
         const client = new MercadoPagoConfig({ accessToken: config.mpAccessToken })
 
         const cart = await CartRepository.getCartById(cid)
+        console.log(cart.products)
 
         const items = cart.products.map(item => {
             return {
@@ -242,23 +254,21 @@ export const createIdPreference = async (req = request, res = response) => {
         })
 
         const back_urls = {
-            // success: 'https://ecommerce-comics.netlify.app/confirm-compra',
-            // failure: 'https://ecommerce-comics.netlify.app/',
-            // pending: 'https://ecommerce-comics.netlify.app/'
-            success: 'http://localhost:5173/carts',
-            failure: 'http://localhost:5173/carts',
-            pending: 'http://localhost:5173/carts'
+            success: config.mpBackUrlsSeccess,
+            failure: config.mpBackUrlsFailure,
+            pending: config.mpBackUrlsPending,
         }
 
         const body = {
             items: items,
             back_urls: back_urls,
-            auto_return: 'approved'
+            auto_return: 'approved',
         };
 
         const preference = new Preference(client);
         const result = await preference.create({ body });
 
+        logger.info(`Pago Realizado en Mercado Pago - ${new Date().toLocaleString()}`)
         return res.json({ ok: true, idPreference: result.id })
 
 

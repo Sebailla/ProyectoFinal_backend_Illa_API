@@ -30,7 +30,7 @@ export const addUser = async (req = request, res = response) => {
         const token = generateToken({ _id, firstName, lastName, age, email, role, cart_id })
 
         logger.info(`New User: ${firstName} ${lastName}, added success - ${new Date().toLocaleString()}`)
-        return res.json({ msg: `New User: ${firstName} ${lastName}, added success`, token, user: { _id, firstName, lastName, age, email, role, cart_id }  })
+        return res.json({ ok: true, msg: `New User: ${firstName} ${lastName}, added success`, token, user: { _id, firstName, lastName, age, email, role, cart_id }  })
     } catch (error) {
         logger.error(`Error en addUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
@@ -64,7 +64,7 @@ export const loginUser = async (req = request, res = response) => {
 
         logger.info(`IUser: ${user.firstName} ${user.lastName}, has been login success - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Login is OK', User: `${user.firstName} ${user.lastName}, has been login success`, token, user, last_connection: new Date().toLocaleString() })
+        return res.json({ ok: true, token, user, last_connection: new Date().toLocaleString() })
     } catch (error) {
         logger.error(`Error en loginUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })
@@ -81,7 +81,7 @@ export const revalidToken = async (req = request, res = response) => {
 
         logger.info(`Revalidate Token OK - User: ${firstName} ${lastName} - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'revalidate token OK', user, Token: token })
+        return res.json({ ok: true, msg: 'revalidate token OK', user, Token: token })
 
 
     } catch (error) {
@@ -108,7 +108,7 @@ export const passwordRecovery = async (req = request, res = response) => {
 
         logger.info(`Send email to: ${email} - Password Recovery - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Sending email OK', token})
+        return res.json({ ok: true, msg: 'Sending email OK', token})
 
 
     } catch (error) {
@@ -127,7 +127,7 @@ export const passwordRecoveryTokenValidation = async (req = request, res = respo
 
         logger.info(`Token validation OK - ${token} - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Token Validation OK', email })
+        return res.json({ ok: true, msg: 'Token Validation OK', email })
 
 
     } catch (error) {
@@ -161,7 +161,7 @@ export const passwordReset = async (req = request, res = response) => {
         user.save()
 
         logger.info(`User: ${email} - Password Successfully Reset - ${new Date().toLocaleString()}`)
-        return res.json({ msg: 'Password Successfully Reset'})
+        return res.json({ ok: true, msg: 'Password Successfully Reset'})
 
     } catch (error) {
         logger.error(`Error en passwordReset-controller - ${new Date().toLocaleString()}`)
@@ -185,7 +185,7 @@ export const premiumUser = async (req = request, res = response) => {
 
         logger.info(`IUser: ${user.firstName} ${user.lastName}, ${role} user, has been login success - ${new Date().toLocaleString()}`)
 
-        return res.json({ msg: 'Login is OK', Premium_User: `${user.firstName} ${user.lastName}, has been login success`, user, last_connection })
+        return res.json({ ok: true, msg: 'Login is OK', Premium_User: `${user.firstName} ${user.lastName}, has been login success`, user, last_connection })
     } catch (error) {
         logger.error(`Error en premiumUser-controller - ${new Date().toLocaleString()}`)
         return res.status(500).json({ msg: 'Error en servidor' })

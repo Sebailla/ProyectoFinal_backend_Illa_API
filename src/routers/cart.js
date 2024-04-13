@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getCarts, getCartById, addCart, addProductToCart, deleteCart, deleteProductInCart, updateProductInCart, purchase, createIdPreference } from '../controller/carts.controller.js'
+import { getCarts, getCartById, addProductToCart, deleteCart, deleteProductInCart, updateProductInCart, purchase, createIdPreference } from '../controller/carts.controller.js'
 import { admin, jwtValidity } from '../middleware/auth.js'
 import { check } from 'express-validator'
 import { cartExist } from '../helpers/DbValidation.js'
@@ -12,8 +12,7 @@ const router = Router()
 router.get('/', [jwtValidity, admin, addLogger], getCarts)
 // Cart por Id
 router.get('/:cid', [jwtValidity, addLogger], getCartById)
-// Add Cart
-router.post('/', [jwtValidity, addLogger], addCart)
+
 //Add products to Cart
 router.post('/:cid/products/:pid', [jwtValidity, addLogger], addProductToCart)
 

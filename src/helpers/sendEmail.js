@@ -28,7 +28,7 @@ export const sendEmail = async (email, url) => {
     }
 }
 
-export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra) => {
+export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra, fechaCompra) => {
     try {
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -44,7 +44,7 @@ export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra
             from: `Ecommerce <seba.illa.prueba@gmail.com>`,
             to: `${email}`,
             subject: 'Ticket de compra',
-            html: templateHtmlEmailCompra(codigo, cliente, items, totalCompra)
+            html: templateHtmlEmailCompra(codigo, cliente, items, totalCompra, fechaCompra)
         });
 
     } catch (error) {
@@ -52,12 +52,13 @@ export const sendEmailTicket = async (email, codigo, cliente, items, totalCompra
     }
 }
 
-const templateHtmlEmailCompra = (codigo, cliente, items, totalCompra) => {
+const templateHtmlEmailCompra = (codigo, cliente, items, totalCompra, fechaCompra) => {
     console.log({ items });
     return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Ticket de Compra</h2>
             <h3>Código: ${codigo}</h3>
+            <h3>Fecha de Compra: ${fechaCompra}</h3>
             <p>Estimado(a) ${cliente},</p>
             <p>¡Gracias por tu compra!</p>
             <h3>Detalles de la compra:</h3>

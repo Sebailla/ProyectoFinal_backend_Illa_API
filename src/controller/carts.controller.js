@@ -215,19 +215,20 @@ export const purchase = async (req = request, res = response) => {
         items.forEach(element => { amount = amount + element.total })
         const purchaser = user.email
         const code = uuidv4()
-        const ticketCompra = await TicketRepository.addTicket({ items, amount, purchaser, code })
+        const purchaseDate = new Date().toLocaleString()
+        const ticketCompra = await TicketRepository.addTicket({ items, amount, purchaser, code, purchaseDate })
 
         let userName = `${user.lastName}, ${user.firstName}`
 
         // enviar email del recibo de la compra
-        sendEmailTicket(purchaser, code, userName, items, amount)
+        sendEmailTicket(purchaser, code, userName, items, amount, purchaseDate)
         logger.info(`Email enviado corectamente a: ${purchaser} - ${new Date().toLocaleString()}`)
 
         await CartRepository.deleteAllProductsInCart(user.cart_id)
 
         logger.info(`Compra finalzada corectamente - Ticket: ${code} - ${new Date().toLocaleString()}`)
 
-        return res.json({ ok: true, msg: 'Compra generada', ticket: { code, Cliente:purchaser, items, amount } })
+        return res.json({ ok: true, msg: 'Compra generada', ticket: { purchaseDate, code, Cliente:purchaser, items, amount } })
 
     } catch (error) {
         logger.error(`Error en purchase-controller - ${new Date().toLocaleString()}`)
